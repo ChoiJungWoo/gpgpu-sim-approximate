@@ -509,6 +509,71 @@ void ptx_thread_info::dump_regs( FILE *fp )
 //steve
 void ptx_thread_info::compute_appro(FILE *fp, int lane_id, unsigned int opcode, unsigned int op_classification){
    //output
+   //input operand
+   if( !(m_debug_trace_regs_read.empty() || 
+         m_debug_trace_regs_read.back().empty()) ) { 
+      reg_map_t::iterator r;
+      int op_i ;
+      for ( r=m_debug_trace_regs_read.back().begin(), op_i =0; r != m_debug_trace_regs_read.back().end(); ++r, op_i++ ) {
+         const symbol *sym = r->first;
+         std::string name = sym->name();
+         ptx_reg_t value = r->second;
+
+         //copy from print_reg
+         const symbol *sym_lookup = m_symbol_table->lookup(name.c_str());
+         //fprintf(fp,"  %8s   ", name.c_str() );
+         if( sym_lookup == NULL ) {
+            //fprintf(fp,"<unknown type> 0x%llx\n", (unsigned long long ) value.u64 );
+            return;
+         }
+         const type_info *t = sym_lookup->type();
+         if( t == NULL ) {
+            //fprintf(fp,"<unknown type> 0x%llx\n", (unsigned long long ) value.u64 );
+            return;
+         }
+         type_info_key ti = t->get_key();
+         
+         switch ( ti.scalar_type() ) {
+         case S8_TYPE:  g_gpu_appro_stat.g_appro_op_array[op_i]->set_ob_val( (long long)value.s8, lane_id);break;
+                        //fprintf(fp,"(%u).s8 %d\n", lane_id,value.s8 ); break;
+         case S16_TYPE: g_gpu_appro_stat.g_appro_op_array[op_i]->set_ob_val( (long long)value.s16, lane_id);break;
+                        //fprintf(fp,"(%u).s16 %d\n", lane_id,value.s16 ); break;
+         case S32_TYPE: g_gpu_appro_stat.g_appro_op_array[op_i]->set_ob_val( (long long)value.s32, lane_id);break;
+                        //fprintf(fp,"(%u).s32 %d\n", lane_id,value.s32 ); break;
+         case S64_TYPE: g_gpu_appro_stat.g_appro_op_array[op_i]->set_ob_val( (long long )value.s64, lane_id);break;
+                        //fprintf(fp,"(%u).s64 %Ld\n", lane_id,value.s64 ); break;
+         case U8_TYPE:  g_gpu_appro_stat.g_appro_op_array[op_i]->set_ob_val( (long long)value.u8, lane_id);break;
+                        //fprintf(fp,"(%u).u8  %u [0x%02x]\n", lane_id,value.u8, (unsigned) value.u8 );  break;
+         case U16_TYPE: g_gpu_appro_stat.g_appro_op_array[op_i]->set_ob_val( (long long)value.u16, lane_id);break;
+                        //fprintf(fp,"(%u).u16 %u [0x%04x]\n", lane_id,value.u16, (unsigned) value.u16 ); break;
+         case U32_TYPE: g_gpu_appro_stat.g_appro_op_array[op_i]->set_ob_val( (long long)value.u32, lane_id);break;
+                        //fprintf(fp,"(%u).u32 %u [0x%08x]\n", lane_id,value.u32, (unsigned) value.u32 ); break;
+         case U64_TYPE: g_gpu_appro_stat.g_appro_op_array[op_i]->set_ob_val((long long)value.u64, lane_id);break;
+                        //fprintf(fp,"(%u).u64 %llu [0x%llx]\n", lane_id,value.u64, value.u64 ); break;
+         case F16_TYPE: g_gpu_appro_stat.g_appro_op_array[op_i]->set_ob_val((long double)value.f16, lane_id);break;
+                        //fprintf(fp,"(%u).f16 %f [0x%04x]\n", lane_id, value.f16, (unsigned) value.u16 ); break;
+         case F32_TYPE: g_gpu_appro_stat.g_appro_op_array[op_i]->set_ob_val((long double)value.f32, lane_id);break;
+                        //fprintf(fp,"(%u).f32 %.15lf [0x%08x]\n",  lane_id,value.f32, value.u32 ); break;
+         case F64_TYPE: g_gpu_appro_stat.g_appro_op_array[op_i]->set_ob_val((long double)value.f64, lane_id);break;
+                        //fprintf(fp,"(%u).f64 %.15le [0x%016llx]\n", lane_id,value.f64, value.u64 ); break;
+         case B8_TYPE:  g_gpu_appro_stat.g_appro_op_array[op_i]->set_ob_val((long long)value.u8, lane_id);break;
+                        //fprintf(fp,"(%u).b8  0x%02x\n",  lane_id, (unsigned) value.u8 );  break;
+         case B16_TYPE: g_gpu_appro_stat.g_appro_op_array[op_i]->set_ob_val((long long)value.u16, lane_id);break;
+                        //fprintf(fp,"(%u).b16 0x%04x\n",  lane_id, (unsigned) value.u16 ); break;
+         case B32_TYPE: g_gpu_appro_stat.g_appro_op_array[op_i]->set_ob_val((long long)value.u32, lane_id);break;
+                        //fprintf(fp,"(%u).b32 0x%08x\n", lane_id,(unsigned) value.u32 ); break;
+         case B64_TYPE: g_gpu_appro_stat.g_appro_op_array[op_i]->set_ob_val((long long)value.u64, lane_id);break;
+                        //fprintf(fp,"(%u).b64 0x%llx\n",  lane_id,  (unsigned long long ) value.u64 ); break;
+         default: 
+            //fprintf( fp, "non-scalar type\n" );
+            break;
+         }
+      }
+      if(op_i >3)
+         printf("***error****: [%d] operands for this instruction!\n", op_i);
+   }
+
+   //output
    if( !(m_debug_trace_regs_modified.empty() || 
          m_debug_trace_regs_modified.back().empty()) ) { 
       reg_map_t::iterator r;
@@ -578,69 +643,6 @@ void ptx_thread_info::compute_appro(FILE *fp, int lane_id, unsigned int opcode, 
             break;
          }
       }
-   }
-   //input operand
-   if( !(m_debug_trace_regs_read.empty() || 
-         m_debug_trace_regs_read.back().empty()) ) { 
-      reg_map_t::iterator r;
-      int op_i ;
-      for ( r=m_debug_trace_regs_read.back().begin(), op_i =0; r != m_debug_trace_regs_read.back().end(); ++r, op_i++ ) {
-         const symbol *sym = r->first;
-         std::string name = sym->name();
-         ptx_reg_t value = r->second;
-
-         //copy from print_reg
-         const symbol *sym_lookup = m_symbol_table->lookup(name.c_str());
-         //fprintf(fp,"  %8s   ", name.c_str() );
-         if( sym_lookup == NULL ) {
-            //fprintf(fp,"<unknown type> 0x%llx\n", (unsigned long long ) value.u64 );
-            return;
-         }
-         const type_info *t = sym_lookup->type();
-         if( t == NULL ) {
-            //fprintf(fp,"<unknown type> 0x%llx\n", (unsigned long long ) value.u64 );
-            return;
-         }
-         type_info_key ti = t->get_key();
-         
-         switch ( ti.scalar_type() ) {
-         case S8_TYPE:  g_gpu_appro_stat.g_appro_op_array[op_i]->set_ob_val( (long long)value.s8, lane_id);break;
-                        //fprintf(fp,"(%u).s8 %d\n", lane_id,value.s8 ); break;
-         case S16_TYPE: g_gpu_appro_stat.g_appro_op_array[op_i]->set_ob_val( (long long)value.s16, lane_id);break;
-                        //fprintf(fp,"(%u).s16 %d\n", lane_id,value.s16 ); break;
-         case S32_TYPE: g_gpu_appro_stat.g_appro_op_array[op_i]->set_ob_val( (long long)value.s32, lane_id);break;
-                        //fprintf(fp,"(%u).s32 %d\n", lane_id,value.s32 ); break;
-         case S64_TYPE: g_gpu_appro_stat.g_appro_op_array[op_i]->set_ob_val( (long long )value.s64, lane_id);break;
-                        //fprintf(fp,"(%u).s64 %Ld\n", lane_id,value.s64 ); break;
-         case U8_TYPE:  g_gpu_appro_stat.g_appro_op_array[op_i]->set_ob_val( (long long)value.u8, lane_id);break;
-                        //fprintf(fp,"(%u).u8  %u [0x%02x]\n", lane_id,value.u8, (unsigned) value.u8 );  break;
-         case U16_TYPE: g_gpu_appro_stat.g_appro_op_array[op_i]->set_ob_val( (long long)value.u16, lane_id);break;
-                        //fprintf(fp,"(%u).u16 %u [0x%04x]\n", lane_id,value.u16, (unsigned) value.u16 ); break;
-         case U32_TYPE: g_gpu_appro_stat.g_appro_op_array[op_i]->set_ob_val( (long long)value.u32, lane_id);break;
-                        //fprintf(fp,"(%u).u32 %u [0x%08x]\n", lane_id,value.u32, (unsigned) value.u32 ); break;
-         case U64_TYPE: g_gpu_appro_stat.g_appro_op_array[op_i]->set_ob_val((long long)value.u64, lane_id);break;
-                        //fprintf(fp,"(%u).u64 %llu [0x%llx]\n", lane_id,value.u64, value.u64 ); break;
-         case F16_TYPE: g_gpu_appro_stat.g_appro_op_array[op_i]->set_ob_val((long double)value.f16, lane_id);break;
-                        //fprintf(fp,"(%u).f16 %f [0x%04x]\n", lane_id, value.f16, (unsigned) value.u16 ); break;
-         case F32_TYPE: g_gpu_appro_stat.g_appro_op_array[op_i]->set_ob_val((long double)value.f32, lane_id);break;
-                        //fprintf(fp,"(%u).f32 %.15lf [0x%08x]\n",  lane_id,value.f32, value.u32 ); break;
-         case F64_TYPE: g_gpu_appro_stat.g_appro_op_array[op_i]->set_ob_val((long double)value.f64, lane_id);break;
-                        //fprintf(fp,"(%u).f64 %.15le [0x%016llx]\n", lane_id,value.f64, value.u64 ); break;
-         case B8_TYPE:  g_gpu_appro_stat.g_appro_op_array[op_i]->set_ob_val((long long)value.u8, lane_id);break;
-                        //fprintf(fp,"(%u).b8  0x%02x\n",  lane_id, (unsigned) value.u8 );  break;
-         case B16_TYPE: g_gpu_appro_stat.g_appro_op_array[op_i]->set_ob_val((long long)value.u16, lane_id);break;
-                        //fprintf(fp,"(%u).b16 0x%04x\n",  lane_id, (unsigned) value.u16 ); break;
-         case B32_TYPE: g_gpu_appro_stat.g_appro_op_array[op_i]->set_ob_val((long long)value.u32, lane_id);break;
-                        //fprintf(fp,"(%u).b32 0x%08x\n", lane_id,(unsigned) value.u32 ); break;
-         case B64_TYPE: g_gpu_appro_stat.g_appro_op_array[op_i]->set_ob_val((long long)value.u64, lane_id);break;
-                        //fprintf(fp,"(%u).b64 0x%llx\n",  lane_id,  (unsigned long long ) value.u64 ); break;
-         default: 
-            //fprintf( fp, "non-scalar type\n" );
-            break;
-         }
-      }
-      if(op_i >3)
-         printf("***error****: [%d] operands for this instruction!\n", op_i);
    }
 }
 

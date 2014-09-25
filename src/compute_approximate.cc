@@ -5,6 +5,10 @@
 
 //using namespace std;
 
+
+//***********
+//appro_stat
+//***********
 appro_stat::appro_stat(std::string class_name){
    name = class_name;
    r_dump_file = fopen( (char *)name.append(".r_dump").c_str(), "w");
@@ -647,6 +651,12 @@ void gpu_appro_stat::compute_pred_output_f(unsigned int opcode, unsigned int lid
 
    op_code = opcode;
 
+	 long double real_output = g_appro_output->get_ob_values_f(lid);
+	 long double real_op_1 = g_appro_op_1->get_ob_values_f(lid);
+	 long double real_op_2 = g_appro_op_2->get_ob_values_f(lid);
+	 long double real_op_3 = g_appro_op_3->get_ob_values_f(lid);
+
+
    long double op_1 = g_appro_op_1->get_pred_values_f(lid);
    long double op_2 = g_appro_op_2->get_pred_values_f(lid);
    long double op_3 = g_appro_op_3->get_pred_values_f(lid);
@@ -654,9 +664,9 @@ void gpu_appro_stat::compute_pred_output_f(unsigned int opcode, unsigned int lid
    switch (opcode){
       case ADD: 
          pred_output_f[lid] = op_1 + op_2;
-         if( isnan(pred_output_f[lid]) ){
-            printf("add: pred_output_f[%u] (%Le)\n", lid, pred_output_f[lid]);
-         }
+         
+		//printf("add: [%u] (%Le)=(%Le)+(%Le) | (%Le)=(%Le)+(%Le)\n", lid, pred_output_f[lid], op_1, op_2, real_output, real_op_1, real_op_2);
+
          if(lane_mask == 0xffffffff){
             compute_warp_pred_output_error_f();
             re_init_values();
@@ -665,9 +675,7 @@ void gpu_appro_stat::compute_pred_output_f(unsigned int opcode, unsigned int lid
       break;
       case SUB:
          pred_output_f[lid] = op_1 - op_2;
-         if( isnan(pred_output_f[lid]) ){
-            printf("sub: pred_output_f[%u] (%Le)\n", lid, pred_output_f[lid]);
-         }
+		printf("sub: [%u] (%Le)=(%Le)-(%Le) | (%Le)=(%Le)-(%Le)\n", lid, pred_output_f[lid], op_1, op_2, real_output, real_op_1, real_op_2);
          if(lane_mask == 0xffffffff){
             compute_warp_pred_output_error_f();
             re_init_values();
@@ -678,9 +686,8 @@ void gpu_appro_stat::compute_pred_output_f(unsigned int opcode, unsigned int lid
       case MAD24:
       case MAD:
          pred_output_f[lid] = op_1 * op_2 + op_3;
-         if( isnan(pred_output_f[lid]) ){
-            printf("MAD: pred_output_f[%u] (%Le) (%Le)\n", lid, pred_output_f[lid], g_appro_output->get_ob_values_f(lid) );
-         }
+         //printf("MAD: [%u] (%Le) (%Le)\n", lid, pred_output_f[lid], output );
+		printf("mad: [%u] (%Le)=(%Le)*(%Le)+(%Le) | (%Le)=(%Le)*(%Le)+(%Le)\n", lid, pred_output_f[lid], op_1, op_2, op_3, real_output, real_op_1, real_op_2, real_op_3);
          if(lane_mask == 0xffffffff){
             compute_warp_pred_output_error_f();
             re_init_values();
@@ -691,9 +698,8 @@ void gpu_appro_stat::compute_pred_output_f(unsigned int opcode, unsigned int lid
       case MUL24:
       case MUL:
          pred_output_f[lid] = op_1 * op_2;
-         if( isnan(pred_output_f[lid]) ){
-            printf("mul: pred_output_f[%u] (%Le) (%Le)\n", lid, pred_output_f[lid], g_appro_output->get_ob_values_f(lid) );
-         }
+         //printf("mul: [%u] (%Le) (%Le)\n", lid, pred_output_f[lid], output );
+		printf("mul: [%u] (%Le)=(%Le)*(%Le) | (%Le)=(%Le)*(%Le)\n", lid, pred_output_f[lid], op_1, op_2, real_output, real_op_1, real_op_2);
          if(lane_mask == 0xffffffff){
             compute_warp_pred_output_error_f();
             re_init_values();
@@ -703,12 +709,15 @@ void gpu_appro_stat::compute_pred_output_f(unsigned int opcode, unsigned int lid
 
       case DIV:
          pred_output_f[lid] = op_1 / op_2;
+         //printf("div: [%u] (%Le) (%Le)\n", lid, pred_output_f[lid], output );
+		printf("div: [%u] (%Le)=(%Le)/(%Le) | (%Le)=(%Le)/(%Le)\n", lid, pred_output_f[lid], op_1, op_2, real_output, real_op_1, real_op_2);
+
          if( isnan(pred_output_f[lid]) ){
-            printf("div: pred_output_f[%u] (%Le)=(%Le)/(%Le) | (%Le) = (%Le)/(%Le)\n", lid, pred_output_f[lid],op_1, op_2, g_appro_output->get_ob_values_f(lid), g_appro_op_1->get_ob_values_f(lid), g_appro_op_2->get_ob_values_f(lid) );
+            printf("div: pred_output_f[%u] (%Le)=(%Le)/(%Le) | (%Le) = (%Le)/(%Le)\n", lid, pred_output_f[lid],op_1, op_2, real_output, g_appro_op_1->get_ob_values_f(lid), g_appro_op_2->get_ob_values_f(lid) );
             pred_output_f[lid] = 0;
          }
          if( isinf(pred_output_f[lid]) ){
-            printf("div: pred_output_f[%u] (%Le)=(%Le)/(%Le) | (%Le) = (%Le)/(%Le)\n", lid, pred_output_f[lid],op_1, op_2, g_appro_output->get_ob_values_f(lid), g_appro_op_1->get_ob_values_f(lid), g_appro_op_2->get_ob_values_f(lid) );
+            printf("div: pred_output_f[%u] (%Le)=(%Le)/(%Le) | (%Le) = (%Le)/(%Le)\n", lid, pred_output_f[lid],op_1, op_2, real_output, g_appro_op_1->get_ob_values_f(lid), g_appro_op_2->get_ob_values_f(lid) );
             pred_output_f[lid] = 0;
          }
          if(lane_mask == 0xffffffff){
