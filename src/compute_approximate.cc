@@ -189,42 +189,6 @@ double appro_stat::compute_r_i( ) {
    return ret_r;
 }
 
-void appro_stat::record_error_f(){
-   if(lane_set != 0xffffffff){
-      lane_set = 0x0;
-      return;
-   }
-
-   long double sum_warp_bias_sqr =0;
-   long double sum_warp_ob_values_sqr =0;
-
-   for(int i=0; i<NO_LANE; i++){
-      sum_warp_bias_sqr       += (long double)(ob_values_f[i] - pred_values_f[i])
-                                 *(ob_values_f[i] - pred_values_f[i]);
-      sum_warp_ob_values_sqr  += (long double)ob_values_f[i] * ob_values_f[i];
-   }
-   
-   num_warps_error++;
-}
-
-void appro_stat::record_error_i(){
-   if(lane_set != 0xffffffff){
-      lane_set = 0x0;
-      return;
-   }
-
-   long double sum_warp_bias_sqr =0;
-   long double  sum_warp_ob_values_sqr=0;
-
-   for(int i=0; i<NO_LANE; i++){
-      sum_warp_bias_sqr       += (long double) (ob_values_i[i] - pred_values_i[i])
-                                 *(ob_values_i[i] - pred_values_i[i]);
-      sum_warp_ob_values_sqr  += (long double) ob_values_i[i] * ob_values_i[i];
-   }
-
-   num_warps_error++;
-}
-
 void appro_stat::record_warp_error_f(){
    if(lane_set != 0xffffffff){
       lane_set = 0x0;
@@ -327,11 +291,6 @@ void appro_stat::set_ob_val(long double val, int lane_id){
 
    if(lane_id == 31){
       compute_pred_f();
-      if(!check_array_nan_f()){
-         return;
-      }
-      compute_r_f();
-      record_warp_error_f();
    }
 
    num_values ++;
@@ -357,8 +316,6 @@ void appro_stat::set_ob_val(long long val, int lane_id){
 
    if(lane_id == 31){
       compute_pred_i();
-      compute_r_i();
-      record_warp_error_i();
    }
 
    num_values ++;
@@ -376,13 +333,19 @@ void appro_stat::re_init_values(){
 
 void appro_stat::compute_pred_f(){
    pred_values_f[0] = ob_values_f[0];
-   pred_values_f[31] = pred_values_f[NO_LANE-1];
+   pred_values_f[NO_LANE-1] = pred_values_f[NO_LANE-1];
 
    double dist = (ob_values_f[31]- ob_values_f[0] )/(float)(NO_LANE-1);
 
    for(int i=1; i < NO_LANE ; i++){
       pred_values_f[i] = pred_values_f[i-1] + dist;
    }
+
+   if(!check_array_nan_f()){
+      return;
+   }
+   compute_r_f();
+   record_warp_error_f();
 
    num_preded_warps++;
 } 
@@ -396,6 +359,9 @@ void appro_stat::compute_pred_i(){
    for(int i=1; i < NO_LANE ; i++){
       pred_values_i[i] = pred_values_i[i-1] + dist;
    }
+
+   compute_r_i();
+   record_warp_error_i();
 
    num_preded_warps++;
 } 
@@ -624,11 +590,11 @@ void gpu_appro_stat::print_stat(FILE *fp){
    fprintf(fp,"----------------------\n");
    
    fprintf(fp,
-         "float pred output errors f(%Le) = (%Le)/(%Le)\n",
+         "float pred output errors f(%Le) = (%Le)/(%u)\n",
          sum_output_error_f/num_warp_pred_output_f, sum_output_error_f, num_warp_pred_output_f );
 
    fprintf(fp,
-         "float pred output normalized errors f(%Le) = (%Le)/(%Le)\n",
+         "float pred output normalized errors f(%Le) = (%Le)/(%u)\n",
          sum_output_nor_error_f/num_warp_pred_output_f, sum_output_nor_error_f, num_warp_pred_output_f );
    fprintf(fp,
          "float num of ASMD op (%llu)/tot(%u) = (%3f)\n",
@@ -642,6 +608,73 @@ void gpu_appro_stat::print_stat(FILE *fp){
    g_appro_op_array[2]->print_stat(fp);
 }
 
+void gpu_appro_stat::compute_pred_output_f(unsigned int opcode, unsigned int lid){
+   record_op(opcode);
+
+   if(lid == 0 )
+      lane_mask = 0;
+   lane_mask ^= 0x1<<lid; 
+	
+   	op_code = opcode;
+	if(lid == 31 && lane_mask == 0xffffffff){
+
+		for(int i = 0; i < 32; i++){
+   			long double real_output = g_appro_output->get_ob_values_f(i);
+   			long double real_op_1 = g_appro_op_1->get_ob_values_f(i);
+   			long double real_op_2 = g_appro_op_2->get_ob_values_f(i);
+   			long double real_op_3 = g_appro_op_3->get_ob_values_f(i);
+
+   			long double op_1 = g_appro_op_1->get_pred_values_f(i);
+   			long double op_2 = g_appro_op_2->get_pred_values_f(i);
+   			long double op_3 = g_appro_op_3->get_pred_values_f(i);
+
+   			switch (opcode){
+   			   case ADD: 
+   			      pred_output_f[lid] = op_1 + op_2;
+   			      
+   			 	  //printf("add: [%u] (%Le)=(%Le)+(%Le) | (%Le)=(%Le)+(%Le)\n", lid, pred_output_f[lid], op_1, op_2, real_output, real_op_1, real_op_2);
+
+   			      num_pred_output ++;
+   			   break;
+   			   case SUB:
+   			      pred_output_f[lid] = op_1 - op_2;
+   			 	  //printf("sub: [%u] (%Le)=(%Le)-(%Le) | (%Le)=(%Le)-(%Le)\n", lid, pred_output_f[lid], op_1, op_2, real_output, real_op_1, real_op_2);
+
+   			      num_pred_output ++;
+   			      break;
+
+   			   case MAD24:
+   			   case MAD:
+   			      pred_output_f[lid] = op_1 * op_2 + op_3;
+   			 	  //printf("mad: [%u] (%Le)=(%Le)*(%Le)+(%Le) | (%Le)=(%Le)*(%Le)+(%Le)\n", lid, pred_output_f[lid], op_1, op_2, op_3, real_output, real_op_1, real_op_2, real_op_3);
+
+   			      num_pred_output ++;
+   			      break;
+
+   			   case MUL24:
+   			   case MUL:
+   			      pred_output_f[lid] = op_1 * op_2;
+   			 	  //printf("mul: [%u] (%Le)=(%Le)*(%Le) | (%Le)=(%Le)*(%Le)\n", lid, pred_output_f[lid], op_1, op_2, real_output, real_op_1, real_op_2);
+
+   			      num_pred_output ++;
+   			      break;
+
+   			   case DIV:
+   			      pred_output_f[lid] = op_1 / op_2;
+   			 	  //printf("div: [%u] (%Le)=(%Le)/(%Le) | (%Le)=(%Le)/(%Le)\n", lid, pred_output_f[lid], op_1, op_2, real_output, real_op_1, real_op_2);
+
+   			      num_pred_output ++;
+   			      break;
+
+   			   default: break;
+   			}
+		}
+   		compute_warp_pred_output_error_f();
+   		re_init_values();
+	}
+}
+
+/*
 void gpu_appro_stat::compute_pred_output_f(unsigned int opcode, unsigned int lid){
    record_op(opcode);
 
@@ -730,6 +763,8 @@ void gpu_appro_stat::compute_pred_output_f(unsigned int opcode, unsigned int lid
       default: break;
    }
 }
+*/
+
 
 void gpu_appro_stat::compute_warp_pred_output_error_f(){
    long double sum_warp_bias_sqr =0;
