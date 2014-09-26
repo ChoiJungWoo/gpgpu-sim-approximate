@@ -11,7 +11,7 @@
 //***********
 appro_stat::appro_stat(std::string class_name){
    name = class_name;
-   r_dump_file = fopen( (char *)name.append(".r_dump").c_str(), "w");
+   //r_dump_file = fopen( (char *)name.append(".r_dump").c_str(), "w");
 
    ob_values_f[32] = {0};
    pred_values_f[32] = {0};
@@ -818,7 +818,7 @@ void gpu_appro_stat::compute_warp_pred_output_error_f(){
    }
 #endif
 
-   if( isnan(warp_error) ){
+   if( isnan(warp_error) || isinf(warp_error) ){
       return;
    }
 
