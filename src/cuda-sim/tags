@@ -36,20 +36,20 @@ LANEMASK_GE_REG	opcodes.h	/^   LANEMASK_GE_REG,$/;"	e	enum:special_regs
 LANEMASK_GT_REG	opcodes.h	/^   LANEMASK_GT_REG,$/;"	e	enum:special_regs
 LANEMASK_LE_REG	opcodes.h	/^   LANEMASK_LE_REG,$/;"	e	enum:special_regs
 LANEMASK_LT_REG	opcodes.h	/^   LANEMASK_LT_REG,$/;"	e	enum:special_regs
-MAX	cuda-sim.cc	1690;"	d	file:
-MAX_CLASS_KER	cuda-sim.cc	1132;"	d	file:
-MAX_INST_SIZE	cuda-sim.cc	181;"	d	file:
+MAX	cuda-sim.cc	1775;"	d	file:
+MAX_CLASS_KER	cuda-sim.cc	1137;"	d	file:
+MAX_INST_SIZE	cuda-sim.cc	186;"	d	file:
 MEM_BLOCK_SIZE	memory.h	50;"	d
 MEM_MAP_RESIZE	memory.h	36;"	d
 MEM_MAP_RESIZE	memory.h	38;"	d
-MY_CAS_I	instructions.cc	647;"	d	file:
-MY_DEC_I	instructions.cc	645;"	d	file:
-MY_EXCH	instructions.cc	649;"	d	file:
-MY_INC_I	instructions.cc	644;"	d	file:
-MY_MAX_F	instructions.cc	639;"	d	file:
-MY_MAX_I	instructions.cc	638;"	d	file:
-MY_MIN_F	instructions.cc	642;"	d	file:
-MY_MIN_I	instructions.cc	641;"	d	file:
+MY_CAS_I	instructions.cc	649;"	d	file:
+MY_DEC_I	instructions.cc	647;"	d	file:
+MY_EXCH	instructions.cc	651;"	d	file:
+MY_INC_I	instructions.cc	646;"	d	file:
+MY_MAX_F	instructions.cc	641;"	d	file:
+MY_MAX_I	instructions.cc	640;"	d	file:
+MY_MIN_F	instructions.cc	644;"	d	file:
+MY_MIN_I	instructions.cc	643;"	d	file:
 NCTAID_REG	opcodes.h	/^   NCTAID_REG,$/;"	e	enum:special_regs
 NON_ARRAY_IDENTIFIER	ptx_parser.h	97;"	d
 NO_BRANCH_DIVERGENCE	cuda-sim.h	127;"	d
@@ -60,12 +60,12 @@ NWARPID_REG	opcodes.h	/^   NWARPID_REG,$/;"	e	enum:special_regs
 OBJS	Makefile	/^OBJS	:= $(OUTPUT_DIR)\/ptx_parser.o $(OUTPUT_DIR)\/ptx_loader.o $(OUTPUT_DIR)\/cuda_device_printf.o $(OUTPUT_DIR)\/instructions.o $(OUTPUT_DIR)\/cuda-sim.o $(OUTPUT_DIR)\/ptx_ir.o $(OUTPUT_DIR)\/ptx_sim.o  $(OUTPUT_DIR)\/memory.o $(OUTPUT_DIR)\/ptx-stats.o $(OUTPUT_DIR)\/decuda_pred_table\/decuda_pred_table.o $(OUTPUT_DIR)\/ptx.tab.o $(OUTPUT_DIR)\/lex.ptx_.o $(OUTPUT_DIR)\/ptxinfo.tab.o $(OUTPUT_DIR)\/lex.ptxinfo_.o$/;"	m
 OPT	Makefile	/^	OPT := -g3 -Wall  -Wno-unused-function -Wno-sign-compare$/;"	m
 OPT	Makefile	/^OPT	:=  -O3 -g3 -Wall -Wno-unused-function -Wno-sign-compare$/;"	m
-OP_DEF	cuda-sim.cc	1208;"	d	file:
-OP_DEF	cuda-sim.cc	1210;"	d	file:
-OP_DEF	cuda-sim.cc	813;"	d	file:
-OP_DEF	cuda-sim.cc	815;"	d	file:
-OP_DEF	instructions.cc	49;"	d	file:
+OP_DEF	cuda-sim.cc	1276;"	d	file:
+OP_DEF	cuda-sim.cc	1278;"	d	file:
+OP_DEF	cuda-sim.cc	818;"	d	file:
+OP_DEF	cuda-sim.cc	820;"	d	file:
 OP_DEF	instructions.cc	51;"	d	file:
+OP_DEF	instructions.cc	53;"	d	file:
 OP_DEF	opcodes.h	32;"	d
 OP_DEF	opcodes.h	35;"	d
 OUTPUT_DIR	Makefile	/^OUTPUT_DIR=$(SIM_OBJ_FILES_DIR)\/cuda-sim$/;"	m
@@ -73,10 +73,10 @@ PM_REG	opcodes.h	/^   PM_REG,$/;"	e	enum:special_regs
 PTX_LOADER_H_INCLUDED	ptx_loader.h	29;"	d
 PTX_PARSE_DPRINTF	ptx_parser.cc	77;"	d	file:
 RECONVERGE_RETURN_PC	cuda-sim.h	126;"	d
-SAD	instructions.cc	3027;"	d	file:
+SAD	instructions.cc	3052;"	d	file:
 SMID_REG	opcodes.h	/^   SMID_REG,$/;"	e	enum:special_regs
 SRCS	Makefile	/^SRCS = $(shell ls *.cc)$/;"	m
-STR_SIZE	cuda-sim.cc	458;"	d	file:
+STR_SIZE	cuda-sim.cc	463;"	d	file:
 STR_SIZE	ptx_ir.cc	42;"	d	file:
 TID_REG	opcodes.h	/^   TID_REG,$/;"	e	enum:special_regs
 TRACE	Makefile	/^TRACE?=0$/;"	m
@@ -218,6 +218,7 @@ clear_ptxinfo	cuda-sim.cc	/^void clear_ptxinfo()$/;"	f
 clz_impl	instructions.cc	/^void clz_impl( const ptx_instruction *pI, ptx_thread_info *thread )$/;"	f
 cnot_impl	instructions.cc	/^void cnot_impl( const ptx_instruction *pI, ptx_thread_info *thread ) $/;"	f
 compare_spec	ptx.y	/^compare_spec:EQ_OPTION { add_option(EQ_OPTION); } $/;"	l
+compute_appro	ptx_sim.cc	/^void ptx_thread_info::compute_appro(FILE *fp, int lane_id, unsigned int opcode, unsigned int op_classification){$/;"	f	class:ptx_thread_info
 connect_basic_blocks	ptx_ir.cc	/^void function_info::connect_basic_blocks( ) \/\/iterate across m_basic_blocks of function, connecting basic blocks together$/;"	f	class:function_info
 connect_break_targets	ptx_ir.cc	/^bool function_info::connect_break_targets() \/\/connecting break instructions with proper targets$/;"	f	class:function_info
 const_iterator	ptx_ir.h	/^   typedef std::vector<operand_info>::const_iterator const_iterator;$/;"	t	class:ptx_instruction
@@ -885,7 +886,7 @@ mov_impl	instructions.cc	/^void mov_impl( const ptx_instruction *pI, ptx_thread_
 ms	ptx_sim.h	/^      unsigned ms;$/;"	m	struct:ptx_reg_t::__anon2
 mul24_impl	instructions.cc	/^void mul24_impl( const ptx_instruction *pI, ptx_thread_info *thread ) $/;"	f
 mul_impl	instructions.cc	/^void mul_impl( const ptx_instruction *pI, ptx_thread_info *thread ) $/;"	f
-my_abs	instructions.cc	636;"	d	file:
+my_abs	instructions.cc	638;"	d	file:
 my_cuda_printf	cuda_device_printf.cc	/^void my_cuda_printf(const char *fmtstr,const char *arg_list)$/;"	f
 mymax	ptx_parser.cc	196;"	d	file:
 name	ptx_ir.h	/^   const std::string &name() const { return m_name;}$/;"	f	class:symbol
@@ -960,6 +961,7 @@ pop_breakaddr	ptx_sim.cc	/^const operand_info& ptx_thread_info::pop_breakaddr() 
 popc_impl	instructions.cc	/^void popc_impl( const ptx_instruction *pI, ptx_thread_info *thread ) $/;"	f
 postdominator_ids	ptx_ir.h	/^   std::set<int> postdominator_ids;$/;"	m	struct:basic_block_t
 pre_decode	cuda-sim.cc	/^void ptx_instruction::pre_decode()$/;"	f	class:ptx_instruction
+pred_lookup	decuda_pred_table/decuda_pred_table.cc	/^bool pred_lookup(int condition, int flags)$/;"	f
 pred_spec	ptx.y	/^pred_spec: PRED IDENTIFIER  { add_pred($2,0, -1); }$/;"	l
 predecessor_ids	ptx_ir.h	/^   std::set<int> predecessor_ids; \/\/indices of other basic blocks in m_basic_blocks array$/;"	m	struct:basic_block_t
 prefetch_impl	instructions.cc	/^void prefetch_impl( const ptx_instruction *pI, ptx_thread_info *thread ) { inst_not_implemented(pI); }$/;"	f
