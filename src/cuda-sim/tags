@@ -3,7 +3,7 @@
 !_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
-!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+!_TAG_PROGRAM_VERSION	5.8	//
 -name-prefix	Makefile	/^	bison --name-prefix=ptx_ -v -d ptx.y --file-prefix=$(OUTPUT_DIR)\/ptx$/;"	m
 -name-prefix	Makefile	/^	bison --name-prefix=ptxinfo_ -v -d ptxinfo.y --file-prefix=$(OUTPUT_DIR)\/ptxinfo$/;"	m
 -outfile	Makefile	/^	flex --outfile=$(OUTPUT_DIR)\/lex.ptx_.c ptx.l $/;"	m

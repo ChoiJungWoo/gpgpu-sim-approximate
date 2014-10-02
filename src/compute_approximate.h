@@ -179,7 +179,7 @@ private:
    //others
    unsigned int lane_set;
 
-   FILE * r_dump_file;
+   //FILE * r_dump_file;
 
 };
 
