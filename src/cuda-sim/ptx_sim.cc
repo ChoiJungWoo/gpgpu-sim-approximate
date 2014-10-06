@@ -64,8 +64,8 @@ void ptx_cta_info::check_cta_thread_status_and_reset()
    if ( m_threads_that_have_exited.size() != m_threads_in_cta.size() ) {
       printf("\n\n");
       printf("Execution error: Some threads still running in CTA during CTA reallocation! (1)\n");
-      printf("   CTA uid = %Lu (sm_idx = %u) : %lu running out of %zu total\n", 
-             m_uid, 
+      printf("   CTA uid = %Lu (sm_idx = %u) : %lu running out of %zu total\n",
+             m_uid,
              m_sm_idx,
              (m_threads_in_cta.size() - m_threads_that_have_exited.size()), m_threads_in_cta.size() );
       printf("   These are the threads that are still running:\n");
@@ -152,7 +152,7 @@ ptx_thread_info::ptx_thread_info( kernel_info_t &kernel )
    m_PC=0;
    m_icount = 0;
    m_last_effective_address = 0;
-   m_last_memory_space = undefined_space; 
+   m_last_memory_space = undefined_space;
    m_branch_taken = 0;
    m_shared_mem = NULL;
    m_cta_info = NULL;
@@ -177,19 +177,19 @@ ptx_thread_info::ptx_thread_info( kernel_info_t &kernel )
    m_last_set_operand_value=ptx_reg_t();
 }
 
-const ptx_version &ptx_thread_info::get_ptx_version() const 
-{ 
-   return m_func_info->get_ptx_version(); 
+const ptx_version &ptx_thread_info::get_ptx_version() const
+{
+   return m_func_info->get_ptx_version();
 }
 
-void ptx_thread_info::set_done() 
+void ptx_thread_info::set_done()
 {
    assert( !m_at_barrier );
    m_thread_done = true;
-   m_cycle_done = gpu_sim_cycle; 
+   m_cycle_done = gpu_sim_cycle;
 }
 
-unsigned ptx_thread_info::get_builtin( int builtin_id, unsigned dim_mod ) 
+unsigned ptx_thread_info::get_builtin( int builtin_id, unsigned dim_mod )
 {
    assert( m_valid );
    switch ((builtin_id&0xFFFF)) {
@@ -279,7 +279,7 @@ unsigned ptx_thread_info::get_builtin( int builtin_id, unsigned dim_mod )
    return 0;
 }
 
-void ptx_thread_info::set_info( function_info *func ) 
+void ptx_thread_info::set_info( function_info *func )
 {
   m_symbol_table = func->get_symtab();
   m_func_info = func;
@@ -338,7 +338,7 @@ static void print_reg( FILE *fp, std::string name, ptx_reg_t value, symbol_table
    case B32_TYPE: fprintf(fp,".b32 0x%08x\n", (unsigned) value.u32 ); break;
    case B64_TYPE: fprintf(fp,".b64 0x%llx\n",    (unsigned long long ) value.u64 ); break;
    case PRED_TYPE: fprintf(fp,".pred %u\n",     (unsigned) value.pred ); break;
-   default: 
+   default:
       fprintf( fp, "non-scalar type\n" );
       break;
    }
@@ -360,7 +360,7 @@ void ptx_thread_info::callstack_push( unsigned pc, unsigned rpc, const symbol *r
    m_regs.push_back( reg_map_t() );
    m_debug_trace_regs_modified.push_back( reg_map_t() );
    m_debug_trace_regs_read.push_back( reg_map_t() );
-   m_local_mem_stack_pointer += m_func_info->local_mem_framesize(); 
+   m_local_mem_stack_pointer += m_func_info->local_mem_framesize();
 }
 
 //ptxplus version of callstack_push.
@@ -646,11 +646,10 @@ void ptx_thread_info::compute_appro(FILE *fp, int lane_id, unsigned int opcode, 
    }
 }
 
-
 void ptx_thread_info::dump_modifiedregs(FILE *fp)
 {
-   if( !(m_debug_trace_regs_modified.empty() || 
-         m_debug_trace_regs_modified.back().empty()) ) { 
+   if( !(m_debug_trace_regs_modified.empty() ||
+         m_debug_trace_regs_modified.back().empty()) ) {
       //fprintf(fp,"Output Registers:\n");
       //fflush(fp);
       reg_map_t::iterator r;
@@ -664,7 +663,7 @@ void ptx_thread_info::dump_modifiedregs(FILE *fp)
    //steve
    /*
    if( !(m_debug_trace_regs_read.empty() ||
-         m_debug_trace_regs_read.back().empty()) ) { 
+         m_debug_trace_regs_read.back().empty()) ) {
       //fprintf(fp,"Input Registers:\n");
       //fflush(fp);
       reg_map_t::iterator r;
@@ -675,15 +674,14 @@ void ptx_thread_info::dump_modifiedregs(FILE *fp)
          print_reg(fp,name,value,m_symbol_table);
       }
    }*/
-   
 }
 
-void ptx_thread_info::push_breakaddr(const operand_info &breakaddr) 
+void ptx_thread_info::push_breakaddr(const operand_info &breakaddr)
 {
    m_breakaddrs.push(breakaddr);
 }
 
-const operand_info& ptx_thread_info::pop_breakaddr() 
+const operand_info& ptx_thread_info::pop_breakaddr()
 {
    if(m_breakaddrs.empty()) {
       printf("empty breakaddrs stack");
@@ -702,7 +700,7 @@ void ptx_thread_info::set_npc( const function_info *f )
 }
 
 
-void feature_not_implemented( const char *f ) 
+void feature_not_implemented( const char *f )
 {
    printf("GPGPU-Sim: feature '%s' not supported\n", f );
    abort();

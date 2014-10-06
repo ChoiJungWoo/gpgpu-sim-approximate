@@ -759,10 +759,28 @@ void core_t::execute_warp_inst_t(warp_inst_t &inst, unsigned warpId)
             //virtual function
             checkExecutionStatusAndUpdate(inst,t,tid);
         }
-    } 
+    }
+
+    //steve appro
+    //appro_execute_warp_floating_inst_t(inst, warpId);
 }
-  
-bool  core_t::ptx_thread_done( unsigned hw_thread_id ) const  
+
+//steve appro
+/*
+void core_t::appro_execute_warp_floating_inst_t(warp_inst_t &inst, unsigned warpId){
+    for ( unsigned t=0; t < m_warp_size; t++ ) {
+        if( inst.active(t) ) {
+            if(warpId==(unsigned (-1)))
+                warpId = inst.warp_id();
+            unsigned tid=m_warp_size*warpId+t;
+            //m_thread[tid]->ptx_exec_inst(inst,t);
+            addr_r pc = m_thread[tid]->get_pc();
+            const ptx_instruction * pI = m_thread[tid]->
+        }
+    }
+}*/
+
+bool  core_t::ptx_thread_done( unsigned hw_thread_id ) const
 {
     return ((m_thread[ hw_thread_id ]==NULL) || m_thread[ hw_thread_id ]->is_done());
 }

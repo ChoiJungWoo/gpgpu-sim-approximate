@@ -1166,11 +1166,12 @@ void ptx_thread_info::ptx_exec_inst( warp_inst_t &inst, unsigned lane_id)
    addr_t pc = next_instr();
    assert( pc == inst.pc ); // make sure timing model and functional model are in sync
    const ptx_instruction *pI = m_func_info->get_instruction(pc);
+   //steve
+   appro_per_thread_info.store_pI(pI);
    set_npc( pc + pI->inst_size() );
 
    //steve_move: should be below
    const gpgpu_functional_sim_config &config = m_gpu->get_config();
-   
 
    try {
 

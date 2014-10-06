@@ -148,6 +148,7 @@ class operand_info;
 class symbol_table;
 class function_info;
 class ptx_thread_info;
+class appro_thread_info;
 
 class ptx_cta_info {
 public:
@@ -257,6 +258,50 @@ private:
       unsigned m_sm_version;
       unsigned m_ptx_extensions;
 };
+
+class appro_thread_info{
+public:
+    ptx_instruction *get_pI(){
+        return pI;
+    }
+    void store_pI(ptx_instruction *pI){
+        this->pI = pI;
+    }
+    void set_pc(addr_t pc){
+        this->pc = pc;
+    }
+    ptx_reg_t get_src1(){
+        return src1_data;
+    }
+    ptx_reg_t get_src2(){
+        return src2_data;
+    }
+    ptx_reg_t get_src3(){
+        return src3_data;
+    }
+    ptx_reg_t get_dest(){
+        return dest_data;
+    }
+
+    void set_src1(ptx_reg_t data){
+        src1_data = data;
+    }
+    void set_src2(ptx_reg_t data){
+        src2_data = data;
+    }
+    void set_src3(ptx_reg_t data){
+        src3_data = data;
+    }
+    void set_dest(ptx_reg_t data){
+        dest_data = data;
+    }
+
+private:
+    addr_t pc;
+    ptx_instruction *pI;
+    ptx_reg_t src1_data, src2_data, src3_data, dest_data;
+};
+
 
 class ptx_thread_info {
 public:
@@ -414,22 +459,25 @@ public:
        if(!m_functionalSimulationMode)
            m_core->warp_exit(m_hw_wid);
    }
-   
+
    void registerExit(){m_cta_info->register_thread_exit(this);}
 
 public:
-   addr_t         m_last_effective_address;
-   bool        m_branch_taken;
-   memory_space_t m_last_memory_space;
-   dram_callback_t   m_last_dram_callback; 
-   memory_space   *m_shared_mem;
-   memory_space   *m_local_mem;
-   ptx_cta_info   *m_cta_info;
-   ptx_reg_t m_last_set_operand_value;
+   addr_t           m_last_effective_address;
+   bool             m_branch_taken;
+   memory_space_t   m_last_memory_space;
+   dram_callback_t  m_last_dram_callback;
+   memory_space     *m_shared_mem;
+   memory_space     *m_local_mem;
+   ptx_cta_info     *m_cta_info;
+   ptx_reg_t        m_last_set_operand_value;
+
+   //steve appro
+   appro_thread_info appro_per_thread_info;
 
 private:
 
-   bool m_functionalSimulationMode; 
+   bool m_functionalSimulationMode;
    unsigned m_uid;
    kernel_info_t &m_kernel;
    core_t *m_core;
@@ -471,6 +519,7 @@ private:
 
    std::stack<class operand_info> m_breakaddrs;
 };
+
 
 addr_t generic_to_local( unsigned smid, unsigned hwtid, addr_t addr );
 addr_t generic_to_shared( unsigned smid, addr_t addr );
