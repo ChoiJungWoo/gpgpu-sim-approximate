@@ -261,10 +261,10 @@ private:
 
 class appro_thread_info{
 public:
-    ptx_instruction *get_pI(){
+    const ptx_instruction *get_pI(){
         return pI;
     }
-    void store_pI(ptx_instruction *pI){
+    void store_pI(const ptx_instruction *pI){
         this->pI = pI;
     }
     void set_pc(addr_t pc){
@@ -298,7 +298,7 @@ public:
 
 private:
     addr_t pc;
-    ptx_instruction *pI;
+    const ptx_instruction *pI;
     ptx_reg_t src1_data, src2_data, src3_data, dest_data;
 };
 
@@ -439,6 +439,7 @@ public:
    void dump_modifiedregs(FILE *fp);
    //steve_appro
    void compute_appro(FILE *fp, int lane_id, unsigned int opcode, unsigned int op_classification);
+
    void clear_modifiedregs() { m_debug_trace_regs_modified.back().clear(); m_debug_trace_regs_read.back().clear(); }
    function_info *get_finfo() { return m_func_info;   }
    const function_info *get_finfo() const { return m_func_info;   }

@@ -755,36 +755,57 @@ void core_t::execute_warp_inst_t(warp_inst_t &inst, unsigned warpId)
                 warpId = inst.warp_id();
             unsigned tid=m_warp_size*warpId+t;
             m_thread[tid]->ptx_exec_inst(inst,t);
-            
+
             //virtual function
             checkExecutionStatusAndUpdate(inst,t,tid);
         }
     }
 
     //steve appro
-    //appro_execute_warp_floating_inst_t(inst, warpId);
+    appro_execute_warp_floating_inst_t(inst, warpId);
 }
 
 //steve appro
-/*
 void core_t::appro_execute_warp_floating_inst_t(warp_inst_t &inst, unsigned warpId){
+    //to add: compute approximate for this warp
+    const ptx_instruction *perWarp_pI[m_warp_size];
+    ptx_reg_t src1_data[m_warp_size],
+              src2_data[m_warp_size],
+              src3_data[m_warp_size],
+              src_dest[m_warp_size];
+
     for ( unsigned t=0; t < m_warp_size; t++ ) {
         if( inst.active(t) ) {
             if(warpId==(unsigned (-1)))
                 warpId = inst.warp_id();
             unsigned tid=m_warp_size*warpId+t;
-            //m_thread[tid]->ptx_exec_inst(inst,t);
-            addr_r pc = m_thread[tid]->get_pc();
-            const ptx_instruction * pI = m_thread[tid]->
+            perWarp_pI[t] = m_thread[tid]->appro_per_thread_info.get_pI();
+            src1_data[t] = m_thread[tid]->get_operand_value(
+                    perWarp_pI[t]->src1(),
+                    perWarp_pI[t]->dst(),
+                    perWarp_pI[t]->get_type(),
+                    m_thread[tid], 1);
+
+            src2_data[t] = m_thread[tid]->get_operand_value(
+                    perWarp_pI[t]->src2(),
+                    perWarp_pI[t]->dst(),
+                    perWarp_pI[t]->get_type(),
+                    m_thread[tid], 1);
+
+            src3_data[t] = m_thread[tid]->get_operand_value(
+                    perWarp_pI[t]->src3(),
+                    perWarp_pI[t]->dst(),
+                    perWarp_pI[t]->get_type(),
+                    m_thread[tid], 1);
         }
     }
-}*/
+}
 
 bool  core_t::ptx_thread_done( unsigned hw_thread_id ) const
 {
     return ((m_thread[ hw_thread_id ]==NULL) || m_thread[ hw_thread_id ]->is_done());
 }
-  
+
 void core_t::updateSIMTStack(unsigned warpId, warp_inst_t * inst)
 {
     simt_mask_t thread_done;

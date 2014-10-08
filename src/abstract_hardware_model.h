@@ -1002,7 +1002,7 @@ class core_t {
         void execute_warp_inst_t(warp_inst_t &inst, unsigned warpId =(unsigned)-1);
 
         //steve appro
-        //void appro_execute_warp_floating_inst_t(warp_inst_t &inst, unsigned warpId = (unsigned)-1);
+        void appro_execute_warp_floating_inst_t(warp_inst_t &inst, unsigned warpId = (unsigned)-1);
 
         bool  ptx_thread_done( unsigned hw_thread_id ) const ;
         void updateSIMTStack(unsigned warpId, warp_inst_t * inst);
