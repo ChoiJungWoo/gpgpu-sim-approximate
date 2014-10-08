@@ -1292,9 +1292,6 @@ using namespace steve_glb_sp;
 using namespace steve_glb_sp;
    dump_modifiedregs(value_output_file);
    compute_appro(stdout, lane_id, pI->get_opcode(), op_classification);
-   //printf("op(%u)\n", pI->get_opcode());
-   //g_gpu_appro_stat.compute_pred_output_f(pI->get_opcode(), lane_id);
-   //g_gpu_appro_stat.record_op_class(op_classification);
 #endif
 
    //const gpgpu_functional_sim_config &config = m_gpu->get_config();

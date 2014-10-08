@@ -4,6 +4,7 @@
 #include "compute_approximate.h"
 //#define STEVE_DEBUG 
 #define STEVE_GLOBAL 
+#define APPRO
 /* This file is created by steve,
  * for the use to define global variables 
  * that added to this project

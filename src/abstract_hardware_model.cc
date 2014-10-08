@@ -749,6 +749,7 @@ void simt_stack::update( simt_mask_t &thread_done, addr_vector_t &next_pc, addre
 
 void core_t::execute_warp_inst_t(warp_inst_t &inst, unsigned warpId)
 {
+    bool is_saturate_warp = true;
     for ( unsigned t=0; t < m_warp_size; t++ ) {
         if( inst.active(t) ) {
             if(warpId==(unsigned (-1)))
@@ -759,47 +760,120 @@ void core_t::execute_warp_inst_t(warp_inst_t &inst, unsigned warpId)
             //virtual function
             checkExecutionStatusAndUpdate(inst,t,tid);
         }
+        else 
+            is_saturate_warp = false;
     }
 
     //steve appro
-    appro_execute_warp_floating_inst_t(inst, warpId);
+    if(is_saturate_warp == true)
+        appro_execute_warp_floating_inst_t(inst, warpId);
+    //else, not staturate warp, skip
 }
 
 //steve appro
 void core_t::appro_execute_warp_floating_inst_t(warp_inst_t &inst, unsigned warpId){
     //to add: compute approximate for this warp
-    const ptx_instruction *perWarp_pI[m_warp_size];
-    ptx_reg_t src1_data[m_warp_size],
-              src2_data[m_warp_size],
-              src3_data[m_warp_size],
-              src_dest[m_warp_size];
+    const unsigned int warp_size_f = 32;
+    const ptx_instruction *perWarp_pI[warp_size_f];
+    const unsigned opcode_warp[warp_size_f];
+
+    ptx_reg_t src1_data[warp_size_f],
+              src2_data[warp_size_f],
+              src3_data[warp_size_f],
+              dest_data[warp_size_f];
+
+    double src1[warp_size_f],
+           src2[warp_size_f],
+           src3[warp_size_f],
+           dest[warp_size_f];
+    unsigned i_type ;
 
     for ( unsigned t=0; t < m_warp_size; t++ ) {
         if( inst.active(t) ) {
             if(warpId==(unsigned (-1)))
                 warpId = inst.warp_id();
             unsigned tid=m_warp_size*warpId+t;
+
+            //get stored *pI
             perWarp_pI[t] = m_thread[tid]->appro_per_thread_info.get_pI();
+            opcode_warp[t] = perWarp_pI[t]->get_opcode();
+
             src1_data[t] = m_thread[tid]->get_operand_value(
                     perWarp_pI[t]->src1(),
                     perWarp_pI[t]->dst(),
                     perWarp_pI[t]->get_type(),
-                    m_thread[tid], 1);
+                    m_thread[tid], 1
+                    );
 
             src2_data[t] = m_thread[tid]->get_operand_value(
                     perWarp_pI[t]->src2(),
                     perWarp_pI[t]->dst(),
                     perWarp_pI[t]->get_type(),
-                    m_thread[tid], 1);
+                    m_thread[tid], 1
+                    );
 
             src3_data[t] = m_thread[tid]->get_operand_value(
                     perWarp_pI[t]->src3(),
                     perWarp_pI[t]->dst(),
                     perWarp_pI[t]->get_type(),
-                    m_thread[tid], 1);
+                    m_thread[tid], 1
+                    );
+            i_type = perWarp_pI[t]->get_type();
+            switch(i_type){
+                case F32_TYPE:           
+                    src1[t] = (double)src1_data[t].f32;
+                    src2[t] = (double)src2_data[t].f32;
+                    src3[t] = (double)src3_data[t].f32;
+                    break;
+                case F64_TYPE:
+                case FF64_TYPE:
+                    src1[t] = (double)src1_data[t].f64;
+                    src2[t] = (double)src2_data[t].f64;
+                    src3[t] = (double)src3_data[t].f64;
+                    break;
+                default: return; //not floating op
+            }
         }
+    }//iterate over the threads of warp, and get the operands.
+    //next, do the approximate computation.
+    compute_appro( perWarp_pI,  opcode_warp, src1, src2, src3, dest );
+
+    //commit the dest_data[] to the registers
+    //commit_dest();
+}
+
+void core_t::compute_appro(const unsigned i_type_w[], const unsigned op_warp[], double src1[], double src2[], double src3[], double dest[],  const unsigned warp_size){
+
+    double appro_src1[warp_size],
+           appro_src2[warp_size],
+           appro_src3[warp_size],
+           appro_dest[warp_size];
+
+    double src1_step_diff = 0,
+           src2_step_diff = 0,
+           src3_step_diff = 0;
+
+    src1_step_diff = (src1[warp_size-1] - src1[0])/(warp_size - 1);
+    //approximate
+    for(unsigned t = 0 ; t < warp_size ; t++){
+        appro_src1[t] = src1[0] + (float)src1_step_diff*t;
+        appro_src2[t] = src2[0] + (float)src2_step_diff*t;
+        appro_src3[t] = src3[0] + (float)src3_step_diff*t;
+    }
+
+    //check R
+
+    //approximate instruction
+    switch(op_warp[0]){
+        case ADD:
+        case SUB:
+        case MUL:
+        case MAD:
+        case DIV:
+        default:break;
     }
 }
+//^^^^^^^^^^^^^^^
 
 bool  core_t::ptx_thread_done( unsigned hw_thread_id ) const
 {

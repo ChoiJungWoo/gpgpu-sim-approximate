@@ -966,6 +966,12 @@ void move_warp( warp_inst_t *&dst, warp_inst_t *&src );
 
 size_t get_kernel_code_size( class function_info *entry );
 
+//steve appro************
+//#include "global_steve.h"
+//#ifdef APPRO
+//#include "cuda-sim/ptx_sim.h"
+//#endif
+
 /*
  * This abstract class used as a base for functional and performance and simulation, it has basic functional simulation
  * data structures and procedures. 
@@ -1001,8 +1007,10 @@ class core_t {
         class gpgpu_sim * get_gpu() {return m_gpu;}
         void execute_warp_inst_t(warp_inst_t &inst, unsigned warpId =(unsigned)-1);
 
-        //steve appro
+        //steve appro*****************
         void appro_execute_warp_floating_inst_t(warp_inst_t &inst, unsigned warpId = (unsigned)-1);
+        void compute_appro(const unsigned i_type_warp[], const unsigned i_op_warp[], double src1[], double src2[], double src3[], double dest[], const unsigned int warp_size);
+        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
         bool  ptx_thread_done( unsigned hw_thread_id ) const ;
         void updateSIMTStack(unsigned warpId, warp_inst_t * inst);
