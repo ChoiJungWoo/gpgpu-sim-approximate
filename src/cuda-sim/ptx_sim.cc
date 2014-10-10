@@ -657,7 +657,7 @@ void ptx_thread_info::dump_modifiedregs(FILE *fp)
          const symbol *sym = r->first;
          std::string name = sym->name();
          ptx_reg_t value = r->second;
-         //print_reg(fp,name,value,m_symbol_table);
+         print_reg(fp,name,value,m_symbol_table);
       }
    }
    //steve

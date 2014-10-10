@@ -1291,7 +1291,7 @@ using namespace steve_glb_sp;
 #ifdef STEVE_GLOBAL
 using namespace steve_glb_sp;
    dump_modifiedregs(value_output_file);
-   compute_appro(stdout, lane_id, pI->get_opcode(), op_classification);
+   //compute_appro(stdout, lane_id, pI->get_opcode(), op_classification);
 #endif
 
    //const gpgpu_functional_sim_config &config = m_gpu->get_config();
