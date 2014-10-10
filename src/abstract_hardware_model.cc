@@ -716,8 +716,7 @@ void simt_stack::update( simt_mask_t &thread_done, addr_vector_t &next_pc, addre
             // modify the existing top entry into a reconvergence entry in the pdom stack
             new_recvg_pc = recvg_pc;
             if (new_recvg_pc != top_recvg_pc) {
-                m_stack.back().m_pc = new_recvg_pc;
-                m_stack.back().m_branch_div_cycle = gpu_sim_cycle+gpu_tot_sim_cycle;
+                m_stack.back().m_pc = new_recvg_pc; m_stack.back().m_branch_div_cycle = gpu_sim_cycle+gpu_tot_sim_cycle;
 
                 m_stack.push_back(simt_stack_entry());
             }
@@ -760,8 +759,9 @@ void core_t::execute_warp_inst_t(warp_inst_t &inst, unsigned warpId)
             //virtual function
             checkExecutionStatusAndUpdate(inst,t,tid);
         }
-        else 
+        else{
             is_saturate_warp = false;
+        }
     }
 
     //steve appro
@@ -771,22 +771,29 @@ void core_t::execute_warp_inst_t(warp_inst_t &inst, unsigned warpId)
 }
 
 //steve appro
+#include "appro_op.def"
+#define F32_TYPE 307
+#define F64_TYPE 308
+#define FF64_TYPE 309
+
 void core_t::appro_execute_warp_floating_inst_t(warp_inst_t &inst, unsigned warpId){
     //to add: compute approximate for this warp
-    const unsigned int warp_size_f = 32;
+    const unsigned warp_size_f = m_warp_size;
     const ptx_instruction *perWarp_pI[warp_size_f];
-    const unsigned opcode_warp[warp_size_f];
+    int opcode_warp[warp_size_f];
 
-    ptx_reg_t src1_data[warp_size_f],
-              src2_data[warp_size_f],
-              src3_data[warp_size_f],
-              dest_data[warp_size_f];
+    ptx_reg_t src1_t[warp_size_f],
+              src2_t[warp_size_f],
+              src3_t[warp_size_f],
+              dest_t[warp_size_f];
 
-    double src1[warp_size_f],
-           src2[warp_size_f],
-           src3[warp_size_f],
-           dest[warp_size_f];
-    unsigned i_type ;
+    double src1_data[warp_size_f],
+           src2_data[warp_size_f],
+           src3_data[warp_size_f],
+           dest_data[warp_size_f];
+
+    operand_info dst_warp[warp_size_f];
+    unsigned i_type[warp_size_f];
 
     for ( unsigned t=0; t < m_warp_size; t++ ) {
         if( inst.active(t) ) {
@@ -795,84 +802,172 @@ void core_t::appro_execute_warp_floating_inst_t(warp_inst_t &inst, unsigned warp
             unsigned tid=m_warp_size*warpId+t;
 
             //get stored *pI
-            perWarp_pI[t] = m_thread[tid]->appro_per_thread_info.get_pI();
-            opcode_warp[t] = perWarp_pI[t]->get_opcode();
 
-            src1_data[t] = m_thread[tid]->get_operand_value(
-                    perWarp_pI[t]->src1(),
-                    perWarp_pI[t]->dst(),
-                    perWarp_pI[t]->get_type(),
-                    m_thread[tid], 1
-                    );
+            if(opcode_warp[t] == ADD || opcode_warp[t] == SUB ||opcode_warp[t] == MUL || opcode_warp[t] == MUL24 ||opcode_warp[t] == MAD||opcode_warp[t]==MAD24){
+                perWarp_pI[t] = m_thread[tid]->appro_per_thread_info.get_pI();
+                opcode_warp[t] = perWarp_pI[t]->get_opcode();
+                i_type[t] = perWarp_pI[t]->get_type();
+                dst_warp[t] = perWarp_pI[t]->dst();
 
-            src2_data[t] = m_thread[tid]->get_operand_value(
-                    perWarp_pI[t]->src2(),
-                    perWarp_pI[t]->dst(),
-                    perWarp_pI[t]->get_type(),
-                    m_thread[tid], 1
-                    );
+                src1_t[t] = m_thread[tid]->get_operand_value(
+                        perWarp_pI[t]->src1(),
+                        dst_warp[t],
+                        i_type[t],
+                        m_thread[tid], 1
+                        );
 
-            src3_data[t] = m_thread[tid]->get_operand_value(
-                    perWarp_pI[t]->src3(),
-                    perWarp_pI[t]->dst(),
-                    perWarp_pI[t]->get_type(),
-                    m_thread[tid], 1
-                    );
-            i_type = perWarp_pI[t]->get_type();
-            switch(i_type){
-                case F32_TYPE:           
-                    src1[t] = (double)src1_data[t].f32;
-                    src2[t] = (double)src2_data[t].f32;
-                    src3[t] = (double)src3_data[t].f32;
-                    break;
-                case F64_TYPE:
-                case FF64_TYPE:
-                    src1[t] = (double)src1_data[t].f64;
-                    src2[t] = (double)src2_data[t].f64;
-                    src3[t] = (double)src3_data[t].f64;
-                    break;
-                default: return; //not floating op
+                switch(i_type[t]){
+                    case F32_TYPE:
+                        src1_data[t] = (double)src1_t[t].f32;
+                        break;
+                    case F64_TYPE:
+                    case FF64_TYPE:
+                        src1_data[t] = (double)src1_t[t].f64;
+                        break;
+                    default: return; //not floating op
+                }
+
+                src2_t[t] = m_thread[tid]->get_operand_value(
+                        perWarp_pI[t]->src2(),
+                        dst_warp[t],
+                        i_type[t],
+                        m_thread[tid], 1
+                        );
+                switch(i_type[t]){
+                    case F32_TYPE:
+                        src2_data[t] = (double)src2_t[t].f32;
+                        break;
+                    case F64_TYPE:
+                    case FF64_TYPE:
+                        src2_data[t] = (double)src2_t[t].f64;
+                        break;
+                    default: return; //not floating op
+                }
+                if(opcode_warp[t] == MAD||opcode_warp[t]==MAD24){
+                    src3_t[t] = m_thread[tid]->get_operand_value(
+                            perWarp_pI[t]->src3(),
+                            dst_warp[t],
+                            i_type[t],
+                            m_thread[tid], 1
+                            );
+                    switch(i_type[t]){
+                        case F32_TYPE:
+                            src3_data[t] = (double)src3_t[t].f32;
+                            break;
+                        case F64_TYPE:
+                        case FF64_TYPE:
+                            src3_data[t] = (double)src3_t[t].f64;
+                            break;
+                        default: return; //not floating op
+                    }
+                }
             }
+
         }
     }//iterate over the threads of warp, and get the operands.
     //next, do the approximate computation.
-    compute_appro( perWarp_pI,  opcode_warp, src1, src2, src3, dest );
+    compute_appro( opcode_warp, src1_data, src2_data, src3_data, dest_data, warp_size_f );
 
     //commit the dest_data[] to the registers
-    //commit_dest();
+    //commit_dest(inst, warpId, i_type, dst_warp, dest_data, perWarp_pI, warp_size_f );
+    ptx_reg_t commit_data;
+
+    for ( unsigned t=0; t < m_warp_size; t++ ) {
+        if( inst.active(t) ) {
+            if(warpId==(unsigned (-1)))
+                warpId = inst.warp_id();
+            unsigned tid=m_warp_size*warpId+t;
+
+            switch(i_type[t]){
+                case F32_TYPE:
+                    commit_data.f32 = dest_data[t]; break;
+                case F64_TYPE:
+                case FF64_TYPE:
+                    commit_data.f64 = dest_data[t]; break;
+                default: assert(0); break;
+            }
+
+            m_thread[tid]->set_operand_value(dst_warp[t], commit_data, i_type[t], m_thread[tid], perWarp_pI[t], 0, 0  );
+            //the last two are overflow and carry, 0s for floating op
+        }
+    }
 }
 
-void core_t::compute_appro(const unsigned i_type_w[], const unsigned op_warp[], double src1[], double src2[], double src3[], double dest[],  const unsigned warp_size){
+
+void core_t::compute_appro( const int op_warp[], double src1_data[], double src2_data[], double src3_data[], double dest_data[],  const unsigned warp_size){
 
     double appro_src1[warp_size],
            appro_src2[warp_size],
-           appro_src3[warp_size],
-           appro_dest[warp_size];
+           appro_src3[warp_size];
+           //appro_dest[warp_size];
 
     double src1_step_diff = 0,
            src2_step_diff = 0,
            src3_step_diff = 0;
 
-    src1_step_diff = (src1[warp_size-1] - src1[0])/(warp_size - 1);
+    src1_step_diff = (src1_data[warp_size-1] - src1_data[0])/(warp_size - 1);
     //approximate
     for(unsigned t = 0 ; t < warp_size ; t++){
-        appro_src1[t] = src1[0] + (float)src1_step_diff*t;
-        appro_src2[t] = src2[0] + (float)src2_step_diff*t;
-        appro_src3[t] = src3[0] + (float)src3_step_diff*t;
+        appro_src1[t] = src1_data[0] + src1_step_diff*t;
+        appro_src2[t] = src2_data[0] + src2_step_diff*t;
+        appro_src3[t] = src3_data[0] + src3_step_diff*t;
     }
 
     //check R
 
     //approximate instruction
-    switch(op_warp[0]){
-        case ADD:
-        case SUB:
-        case MUL:
-        case MAD:
-        case DIV:
-        default:break;
+    for(unsigned i=0; i < warp_size; i++){
+        switch(op_warp[i]){
+            case ADD:
+                dest_data[i] = appro_src1[i]+appro_src2[i];
+                break;
+            case SUB:
+                dest_data[i] = appro_src1[i]-appro_src2[i];
+                break;
+            case MUL:
+            case MUL24:
+                dest_data[i] = appro_src1[i]*appro_src2[i];
+                break;
+            case MAD:
+            case MAD24:
+                dest_data[i] = appro_src1[i]*appro_src2[i] + appro_src3[i];
+                break;
+            case DIV:
+                dest_data[i] = appro_src1[i]/appro_src2[i];
+                break;
+            default:break;
+        }
+        printf("[%lf]", dest_data[i]);
     }
+    printf("\n");
 }
+
+/*
+void core_t::commit_dest(warp_inst_t &inst, unsigned warpId, unsigned i_type[], operand_info dst_warp[],  const double dest_data[] , ptx_instruction *perWarp_pI[], const unsigned warp_size){
+
+    ptx_reg_t data;
+
+    for ( unsigned t=0; t < m_warp_size; t++ ) {
+        if( inst.active(t) ) {
+            if(warpId==(unsigned (-1)))
+                warpId = inst.warp_id();
+            unsigned tid=m_warp_size*warpId+t;
+
+            switch(i_type[t]){
+                case F32_TYPE:
+                    data.f32 = dest_data[t]; break;
+                case F64_TYPE:
+                case FF64_TYPE:
+                    data.f64 = dest_data[t]; break;
+                default: break;
+            }
+
+            m_thread[tid]->set_operand_value(dst_warp[t], data, i_type[t], m_thread[tid], perWarp_pI[t], 0, 0  );
+            //the last two are overflow and carry, 0s for floating op
+        }
+    }
+
+}*/
 //^^^^^^^^^^^^^^^
 
 bool  core_t::ptx_thread_done( unsigned hw_thread_id ) const

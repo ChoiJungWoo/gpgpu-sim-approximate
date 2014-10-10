@@ -10,13 +10,14 @@
  * that added to this project
  */
 namespace steve_glb_sp{
-   extern FILE* exec_output_file;
-   extern FILE* value_output_file;
-   extern unsigned long long glb_cycle[15];
-   extern unsigned long glb_last_pc;
-   extern unsigned int  glb_last_sid;
-   extern unsigned long long glb_last_cycle[15];
-   extern unsigned int  glb_last_uid;
+    extern FILE* exec_output_file;
+    extern FILE* value_output_file;
+    extern unsigned long long glb_cycle[15];
+    extern unsigned long glb_last_pc;
+    extern unsigned int  glb_last_sid;
+    extern unsigned long long glb_last_cycle[15];
+    extern unsigned int  glb_last_uid;
+    extern int f32_type, f64_type, ff64_type;
 }
 
 extern gpu_appro_stat g_gpu_appro_stat;

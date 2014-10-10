@@ -807,10 +807,13 @@ void add_impl( const ptx_instruction *pI, ptx_thread_info *thread )
       data.s64 = src1_data.s64 + src2_data.s64;
       break;
    case F16_TYPE: assert(0); break;
-   case F32_TYPE: data.f32 = src1_data.f32 + src2_data.f32; break;
-   case F64_TYPE: case FF64_TYPE: data.f64 = src1_data.f64 + src2_data.f64; break;
+   case F32_TYPE: data.f32 = src1_data.f32 + src2_data.f32; 
+                  break;
+   case F64_TYPE: case FF64_TYPE: data.f64 = src1_data.f64 + src2_data.f64; 
+                  break;
    default: assert(0); break;
    }
+
    fesetround( orig_rm );
 
    thread->set_operand_value(dst, data, i_type, thread, pI, overflow, carry  );

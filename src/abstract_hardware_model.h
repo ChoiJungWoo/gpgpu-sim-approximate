@@ -1009,7 +1009,8 @@ class core_t {
 
         //steve appro*****************
         void appro_execute_warp_floating_inst_t(warp_inst_t &inst, unsigned warpId = (unsigned)-1);
-        void compute_appro(const unsigned i_type_warp[], const unsigned i_op_warp[], double src1[], double src2[], double src3[], double dest[], const unsigned int warp_size);
+        void compute_appro(const int i_op_warp[], double src1[], double src2[], double src3[], double dest[], const unsigned int warp_size);
+        //void commit_dest(warp_inst_t &inst, unsigned warpId, unsigned i_type[], operand_info dst_warp[],  const double dest_data[] , ptx_instruction *perWarp_pI[], const unsigned warp_size);
         //^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
         bool  ptx_thread_done( unsigned hw_thread_id ) const ;

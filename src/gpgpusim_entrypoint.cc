@@ -56,6 +56,7 @@ namespace steve_glb_sp{
    unsigned int  glb_last_sid = -1;
    unsigned long long glb_last_cycle[15];
    unsigned int  glb_last_uid = -1;
+   int f32_type, f64_type, ff64_type;
 }
 
 FILE *appro_file;

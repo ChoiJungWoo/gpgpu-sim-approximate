@@ -6,14 +6,7 @@
 #include <iostream>
 
 //using namespace std;
-
-#define ADD    1
-#define SUB    67
-#define MAD24  30
-#define MAD    31
-#define MUL24  37
-#define MUL    38
-#define DIV    22
+#include "appro_op.def"
 
 class appro_stat;
 class gpu_appro_stat;
