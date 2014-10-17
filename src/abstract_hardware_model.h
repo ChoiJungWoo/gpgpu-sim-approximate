@@ -28,6 +28,8 @@
 #ifndef ABSTRACT_HARDWARE_MODEL_INCLUDED
 #define ABSTRACT_HARDWARE_MODEL_INCLUDED
 
+class operand_info;
+class ptx_instruction;
 
 // Forward declarations
 class gpgpu_sim;
@@ -966,12 +968,6 @@ void move_warp( warp_inst_t *&dst, warp_inst_t *&src );
 
 size_t get_kernel_code_size( class function_info *entry );
 
-//steve appro************
-//#include "global_steve.h"
-//#ifdef APPRO
-//#include "cuda-sim/ptx_sim.h"
-//#endif
-
 /*
  * This abstract class used as a base for functional and performance and simulation, it has basic functional simulation
  * data structures and procedures. 
@@ -1008,10 +1004,28 @@ class core_t {
         void execute_warp_inst_t(warp_inst_t &inst, unsigned warpId =(unsigned)-1);
 
         //steve appro*****************
-        void appro_execute_warp_floating_inst_t(warp_inst_t &inst, unsigned warpId = (unsigned)-1);
-        bool compute_appro(const int i_op_warp[], double src1[], double src2[], double src3[], double dest[], const unsigned int warp_size);
-        bool check_R(int op, double src1_data[], double src2_data[], double src3_data[], double appro_src1[], double appro_src2[], double appro_src3[]);
-        float compute_R(double ob_values_f[], double pred_values_f[]);
+        void appro_src_all_exe_f(warp_inst_t &inst, unsigned warpId = (unsigned)-1);
+
+        void get_src_t(const warp_inst_t &inst,
+            unsigned warpId, const ptx_instruction *perWarp_pI[],
+            int opcode_warp[], unsigned i_type[], operand_info dst_warp[],
+            double src1_data[], double src2_data[], double src3_data[]);
+
+        bool get_dest_appro_src_exe_all_f(const int i_op_warp[], const double src1[], const double src2[], const double src3[], double dest[], const unsigned int warp_size);
+
+        bool check_R(const int op, const double src1_data[], const double src2_data[], const double src3_data[], const double appro_src1[],const double appro_src2[], const double appro_src3[]);
+
+        void get_appro_src( const double src1_data[], const double src2_data[], const double src3_data[], double appro_src1[], double appro_src2[], double appro_src3[]);
+
+        float compute_R(const double ob_values_f[],const double pred_values_f[]);
+
+        void commit_warp_dest( warp_inst_t &inst, unsigned warpId, unsigned i_type[], double dest_data[], operand_info dst_warp[], const ptx_instruction *perWarp_pI[]);
+        void get_dest_sel_exe(const int op_warp[], const double src1_data[], const double src2_data[], const double src3_data[], double dest_data[]);
+        //----------------------------
+        void appro_src_sel_exe_appro_out_f(warp_inst_t &inst, unsigned warpId);
+        bool is_predictable_src(const int op, const double src1_data[], const double src2_data[], const double src3_data[], const double appro_src1[], const double appro_src2[], const double appro_src3[]);
+        void get_appro_dest_sel_exe(const double dest_data[], double appro_dest[]);
+
         //^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
         bool  ptx_thread_done( unsigned hw_thread_id ) const ;

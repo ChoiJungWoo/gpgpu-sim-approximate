@@ -9,6 +9,15 @@
  * for the use to define global variables 
  * that added to this project
  */
+
+#define APPRO_OPERANDS_COMP_ALL     0
+#define APPRO_OPERANDS_COMP_SELECT  1
+
+#include "appro_op.def"
+#define F32_TYPE 307
+#define F64_TYPE 308
+#define FF64_TYPE 309
+
 namespace steve_glb_sp{
     extern FILE* exec_output_file;
     extern FILE* value_output_file;
@@ -18,6 +27,7 @@ namespace steve_glb_sp{
     extern unsigned long long glb_last_cycle[15];
     extern unsigned int  glb_last_uid;
     extern int f32_type, f64_type, ff64_type;
+    extern unsigned appro_mode;
 }
 
 extern gpu_appro_stat g_gpu_appro_stat;

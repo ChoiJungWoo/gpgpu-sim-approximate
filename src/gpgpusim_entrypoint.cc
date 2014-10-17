@@ -47,16 +47,17 @@
 #include "compute_approximate.h"
 #include <string.h>
 namespace steve_glb_sp{
-   FILE* exec_output_file;
-   FILE* mem_output_file;
-   FILE* value_output_file;
-   char exec_output_file_name[30];
-   unsigned long long glb_cycle[15];
-   unsigned long glb_last_pc = -1;
-   unsigned int  glb_last_sid = -1;
-   unsigned long long glb_last_cycle[15];
-   unsigned int  glb_last_uid = -1;
-   int f32_type, f64_type, ff64_type;
+    FILE* exec_output_file;
+    FILE* mem_output_file;
+    FILE* value_output_file;
+    char exec_output_file_name[30];
+    unsigned long long glb_cycle[15];
+    unsigned long glb_last_pc = -1;
+    unsigned int  glb_last_sid = -1;
+    unsigned long long glb_last_cycle[15];
+    unsigned int  glb_last_uid = -1;
+    int f32_type, f64_type, ff64_type;
+    unsigned appro_mode = APPRO_OPERANDS_COMP_SELECT;
 }
 
 FILE *appro_file;
