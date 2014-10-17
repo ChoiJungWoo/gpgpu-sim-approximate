@@ -48,15 +48,6 @@ template<unsigned BSIZE> memory_space_impl<BSIZE>::memory_space_impl( std::strin
 
 template<unsigned BSIZE> void memory_space_impl<BSIZE>::write( mem_addr_t addr, size_t length, const void *data, class ptx_thread_info *thd, const ptx_instruction *pI)
 {
-   //steve_note
-#ifdef STEVE_GLOBAL
-//using namespace steve_glb_sp;
-//   assert(exec_output_file != NULL);
-//   FILE *fp = exec_output_file;
-//   fprintf(fp, "cuda-sim: memory_space_impl::write...\n");
-//   fflush(fp);
-#endif
-
    mem_addr_t index = addr >> m_log2_block_size;
    if ( (addr+length) <= (index+1)*BSIZE ) {
       // fast route for intra-block access 

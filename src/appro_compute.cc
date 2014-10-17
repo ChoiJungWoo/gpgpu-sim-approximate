@@ -24,8 +24,7 @@ void core_t::appro_src_all_exe_f(warp_inst_t &inst, unsigned warpId){
         return ;
 
     //commit all
-    appro_src_commit_all(inst, warpId, i_type, dest_data, dst_warp, perWarp_pI);
-
+    commit_warp_dest(inst, warpId, i_type, dest_data, dst_warp, perWarp_pI);
 }
 
 void core_t::commit_warp_dest(warp_inst_t &inst, unsigned warpId, unsigned i_type[], double dest_data[], operand_info dst_warp[], const ptx_instruction *perWarp_pI[] ){

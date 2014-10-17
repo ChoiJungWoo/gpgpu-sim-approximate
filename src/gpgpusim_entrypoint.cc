@@ -58,6 +58,26 @@ namespace steve_glb_sp{
     unsigned int  glb_last_uid = -1;
     int f32_type, f64_type, ff64_type;
     unsigned appro_mode = APPRO_OPERANDS_COMP_SELECT;
+
+    void printApproMode(){
+        printf("### appro mode: ");
+        switch(appro_mode){
+            case APPRO_OPERANDS_COMP_SELECT:
+                printf(" appro src select execution appro out\n");
+                break;
+            case APPRO_OPERANDS_COMP_ALL:
+                printf(" appro src all execution \n");
+                break;
+            default:
+                break;
+        }
+    }
+
+    void steve_do_sth(){
+        //g_gpu_appro_stat.print_stat(appro_file);
+        steve_glb_sp::printApproMode();
+    }
+
 }
 
 FILE *appro_file;
@@ -125,8 +145,6 @@ bool g_sim_done = true;
 
 void *gpgpu_sim_thread_concurrent(void*)
 {
-   //steve_read
-   printf("###gpgpusim_entrypoint.cc: gpgpu_sim_thread_concurrent()\n");
     // concurrent kernel execution simulation thread
     do {
        if(g_debug_execution >= 3) {
@@ -175,7 +193,7 @@ void *gpgpu_sim_thread_concurrent(void*)
             g_the_gpu->update_stats();
             print_simulation_time();
             //steve
-            g_gpu_appro_stat.print_stat(appro_file);
+            steve_glb_sp::steve_do_sth();
         }
 
         pthread_mutex_lock(&g_sim_lock);

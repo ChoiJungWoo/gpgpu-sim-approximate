@@ -28,6 +28,7 @@ namespace steve_glb_sp{
     extern unsigned int  glb_last_uid;
     extern int f32_type, f64_type, ff64_type;
     extern unsigned appro_mode;
+
 }
 
 extern gpu_appro_stat g_gpu_appro_stat;
