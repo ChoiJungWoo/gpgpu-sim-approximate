@@ -45,28 +45,27 @@
 //vvvv steve global
 #include "global_steve.h"
 #include "compute_approximate.h"
+#include "appro_stat_sim.h"
 #include <string.h>
 namespace steve_glb_sp{
-    FILE* exec_output_file;
-    FILE* mem_output_file;
-    FILE* value_output_file;
-    char exec_output_file_name[30];
-    unsigned long long glb_cycle[15];
-    unsigned long glb_last_pc = -1;
-    unsigned int  glb_last_sid = -1;
-    unsigned long long glb_last_cycle[15];
-    unsigned int  glb_last_uid = -1;
     int f32_type, f64_type, ff64_type;
+
+    appro_stat_sim glb_appro_stat;
+
+    //unsigned appro_mode = NO_APPRO;
+    //unsigned appro_mode = APPRO_OPERANDS_COMP_ALL;
     unsigned appro_mode = APPRO_OPERANDS_COMP_SELECT;
 
     void printApproMode(){
         printf("### appro mode: ");
         switch(appro_mode){
+            case NO_APPRO:
+                printf(" no approximate computing...\n");
             case APPRO_OPERANDS_COMP_SELECT:
-                printf(" appro src select execution appro out\n");
+                printf(" appro src select execution appro out...\n");
                 break;
             case APPRO_OPERANDS_COMP_ALL:
-                printf(" appro src all execution \n");
+                printf(" appro src all execution...\n");
                 break;
             default:
                 break;
@@ -194,6 +193,7 @@ void *gpgpu_sim_thread_concurrent(void*)
             print_simulation_time();
             //steve
             steve_glb_sp::steve_do_sth();
+            steve_glb_sp::glb_appro_stat.print_num_appro_comp(stdout);
         }
 
         pthread_mutex_lock(&g_sim_lock);
@@ -242,10 +242,6 @@ gpgpu_sim *gpgpu_ptx_sim_init_perf()
 {
 #ifdef STEVE_GLOBAL
    //printf("***here***\n");
-   strcpy(steve_glb_sp::exec_output_file_name, "exec_output_file.log");
-   steve_glb_sp::exec_output_file = fopen(steve_glb_sp::exec_output_file_name,"w");
-   //steve_glb_sp::mem_output_file = fopen("mem_output_file.log", "w");
-   steve_glb_sp::value_output_file = fopen("value_output_file.log", "w");
    appro_file = fopen("appro_stat", "w");
 #endif
    //steve_read 

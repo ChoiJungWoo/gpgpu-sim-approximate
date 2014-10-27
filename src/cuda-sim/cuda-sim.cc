@@ -1192,56 +1192,6 @@ void ptx_thread_info::ptx_exec_inst( warp_inst_t &inst, unsigned lane_id)
       }
    }
 
-//vvvv steve_global
-//#ifdef STEVE_GLOBAL
-#ifdef NO_USE
-using namespace steve_glb_sp;
-   assert( exec_output_file != NULL);
-   //if( g_ptx_sim_num_insn >=100000 && g_ptx_sim_num_insn<300000){
-   if( g_ptx_sim_num_insn<300000){
-
-      //if((config.get_ptx_inst_debug_thread_uid() == 0 || config.get_ptx_inst_debug_thread_uid() == get_uid()%32) ){
-      if(glb_last_pc != get_pc() || glb_last_sid != m_hw_sid || glb_last_cycle[m_hw_sid] != glb_cycle[m_hw_sid]
-            || glb_last_uid != get_uid() ){
-
-         glb_last_pc = get_pc();
-         glb_last_sid = m_hw_sid;
-         glb_last_cycle[m_hw_sid] = glb_cycle[m_hw_sid];
-         glb_last_uid = get_uid();
-
-         fprintf(exec_output_file, "----------------------------------------------------------------\n");
-         fflush(exec_output_file);
-         
-         //dump thread info
-         fprintf(exec_output_file,
-                "[%llu] pc(%d) [thd=%u] : (%s:%u - %s)\n",
-                glb_cycle[m_hw_sid],
-                get_pc(),
-                get_uid(),
-                pI->source_file(), pI->source_line(), pI->get_source()
-                );
-         fflush(exec_output_file);
-      //}
-
-      fprintf(exec_output_file,
-            "[%llu]\tpc(%d)\tuid(%d)\tctaid(%d,%d,%d)\ttid(%d,%d,%d)\tsid(%d)\twarp_id(%d)\tlane_id(%d)\n",
-            glb_cycle[m_hw_sid],
-            get_pc(),
-            get_uid(),
-            get_ctaid().x,get_ctaid().y,get_ctaid().z ,
-            get_tid().x, get_tid().y, get_tid().z,
-            m_hw_sid,
-            inst.warp_id(),
-            lane_id
-            );
-      fflush(exec_output_file);
-      }
-      //fprint the output value
-      //dump_modifiedregs(exec_output_file);
-   }
-#endif
-//^^^^
-   
    /* steve_read: 
     * has_pred? pred->predication 
     * means if this inst is predicatable, then get pred
@@ -1290,7 +1240,7 @@ using namespace steve_glb_sp;
 
 #ifdef STEVE_GLOBAL
 using namespace steve_glb_sp;
-   dump_modifiedregs(value_output_file);
+   //dump_modifiedregs(value_output_file);
    //compute_appro(stdout, lane_id, pI->get_opcode(), op_classification);
 #endif
 

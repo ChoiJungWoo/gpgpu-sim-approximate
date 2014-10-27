@@ -768,21 +768,7 @@ void core_t::execute_warp_inst_t(warp_inst_t &inst, unsigned warpId)
         }
     }
 
-    //steve appro
-    if(is_saturate_warp == false)
-        return;
-
-    switch(steve_glb_sp::appro_mode){
-        case APPRO_OPERANDS_COMP_ALL:
-            appro_src_all_exe_f(inst, warpId);
-            break;
-        case APPRO_OPERANDS_COMP_SELECT:
-            appro_src_sel_exe_appro_out_f(inst, warpId);
-            break;
-        default:
-            break;
-    }
-    //else, not staturate warp, skip
+    appro_computing_entry(inst, warpId, steve_glb_sp::appro_mode, is_saturate_warp);
 }
 
 //"appro_compute.cpp"

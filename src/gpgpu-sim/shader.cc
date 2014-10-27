@@ -2427,44 +2427,16 @@ unsigned int shader_core_config::max_cta( const kernel_info_t &k ) const
 
 void shader_core_ctx::cycle()
 {
-   //vvvvvv steve_read 
-	//m_stats->shader_cycles[m_sid]++;
-	unsigned long long s_cycles = m_stats->shader_cycles[m_sid]++;
-#ifdef STEVE_GLOBAL
-   using namespace steve_glb_sp;
-   glb_cycle[m_sid] = s_cycles;
-   //fprintf(exec_output_file,"Shader(%d) Cycle(%llu)\n",m_sid, s_cycles);
-   //fflush(exec_output_file);
-#endif
-   //^^^^^^
-
-   //fprintf(exec_output_file,"###(%d)(%llu)writeback()\n",m_sid, s_cycles);
-   //fflush(exec_output_file);
-
     writeback();
-
-   //fprintf(exec_output_file,"###(%d)(%llu)execute()\n",m_sid, s_cycles);
-   //fflush(exec_output_file);
 
     execute();
 
-   //fprintf(exec_output_file,"###(%d)(%llu)read_operand()\n",m_sid, s_cycles);
-   //fflush(exec_output_file);
-
     read_operands();
 
-   //fprintf(exec_output_file,"###(%d)(%llu)issue()\n",m_sid, s_cycles);
-   //fflush(exec_output_file);
    
     issue();
 
-   //fprintf(exec_output_file,"###(%d)(%llu)decode()\n",m_sid, s_cycles);
-   //fflush(exec_output_file);
-
     decode();
-
-   //fprintf(exec_output_file,"###(%d)(%llu)fetch()\n",m_sid, s_cycles);
-   //fflush(exec_output_file);
 
     fetch();
 }
@@ -3268,21 +3240,6 @@ void simt_core_cluster::icnt_cycle()
                 m_response_fifo.pop_front();
                 m_memory_stats->memlatstat_read_done(mf);
                 m_core[cid]->accept_ldst_unit_response(mf);
-#ifdef NO_USE
-                using namespace steve_glb_sp;
-                fprintf(exec_output_file, "###[  ] [%llu] pc(%u) cid(%u) request_uid(%u) sid(%u) tpc(%u) wid(%u) data_size(%u)\n", 
-                      ///mf->get_isnt().get
-                      mf->get_inst().get_issue_cycle(),
-                      mf->get_pc(),
-                      cid,
-                      mf->get_request_uid(),
-                      mf->get_sid(),
-                      mf->get_tpc(),
-                      mf->get_wid(),
-                      mf->get_data_size()
-                      );
-                fflush(exec_output_file);
-#endif
             }
         }
     }

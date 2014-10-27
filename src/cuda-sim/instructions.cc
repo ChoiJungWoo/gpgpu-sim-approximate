@@ -2218,13 +2218,6 @@ void ld_exec( const ptx_instruction *pI, ptx_thread_info *thread )
          sign_extend(data,size,dst);
       thread->set_operand_value(dst,data, type, thread, pI);
 
-
-#ifdef NOUSE
-using namespace steve_glb_sp;
-      fprintf(exec_output_file, "0<(%lld)\n",data.s64);
-      fflush(exec_output_file);
-#endif
-
    } else {
       ptx_reg_t data1, data2, data3, data4;
       mem->read(addr,size/8,&data1.s64);
@@ -2238,20 +2231,6 @@ using namespace steve_glb_sp;
             thread->set_vector_operand_values(dst,data1,data2,data3,data3);
       } else //v2
          thread->set_vector_operand_values(dst,data1,data2,data2,data2);
-/*
-#ifdef STEVE_GLOBAL
-using namespace steve_glb_sp;
-      assert( exec_output_file != NULL);
-      switch(vector_spec){
-         case V2_TYPE: fprintf(exec_output_file, "1<(%lld)\t", data1.s64);         
-                       fprintf(exec_output_file, "2<(%lld)\t", data2.s64); break;
-         case V3_TYPE: fprintf(exec_output_file, "3<(%lld)\t", data3.s64); break;
-         case V4_TYPE: fprintf(exec_output_file, "4<(%lld)", data4.s64); break;
-      }
-      fprintf(exec_output_file, "\n");
-      fflush(exec_output_file);
-#endif
-*/
    }
    thread->m_last_effective_address = addr;
    thread->m_last_memory_space = space; 
@@ -3598,14 +3577,11 @@ void st_impl( const ptx_instruction *pI, ptx_thread_info *thread )
 
 #ifdef STEVE_GLOBAL
 using namespace steve_glb_sp;
-   assert( exec_output_file != NULL);
 
    if (!vector_spec) {
       data = thread->get_operand_value(src1, dst, type, thread, 1);
       mem->write(addr,size/8,&data.s64,thread,pI);
       
-      //fprintf(exec_output_file, "0>(%lld)\n",data.s64);
-      //fflush(exec_output_file);
 
    } else {
       if (vector_spec == V2_TYPE) {
@@ -3614,8 +3590,6 @@ using namespace steve_glb_sp;
          mem->write(addr,size/8,&ptx_regs[0].s64,thread,pI);
          mem->write(addr+size/8,size/8,&ptx_regs[1].s64,thread,pI);
          
-         //fprintf(exec_output_file, "1>(%lld)\t", ptx_regs[0].s64);         
-         //fprintf(exec_output_file, "2>(%lld)\t", ptx_regs[1].s64); 
 
          delete [] ptx_regs;
       }
@@ -3625,10 +3599,6 @@ using namespace steve_glb_sp;
          mem->write(addr,size/8,&ptx_regs[0].s64,thread,pI);
          mem->write(addr+size/8,size/8,&ptx_regs[1].s64,thread,pI);
          mem->write(addr+2*size/8,size/8,&ptx_regs[2].s64,thread,pI);
-
-         //fprintf(exec_output_file, "1>(%lld)\t", ptx_regs[0].s64);         
-         //fprintf(exec_output_file, "2>(%lld)\t", ptx_regs[1].s64); 
-         //fprintf(exec_output_file, "3>(%lld)\t", ptx_regs[2].s64); 
 
          delete [] ptx_regs;
       }
@@ -3640,16 +3610,9 @@ using namespace steve_glb_sp;
          mem->write(addr+2*size/8,size/8,&ptx_regs[2].s64,thread,pI);
          mem->write(addr+3*size/8,size/8,&ptx_regs[3].s64,thread,pI);
 
-         //fprintf(exec_output_file, "1>(%lld)\t", ptx_regs[0].s64);         
-         //fprintf(exec_output_file, "2>(%lld)\t", ptx_regs[1].s64); 
-         //fprintf(exec_output_file, "3>(%lld)\t", ptx_regs[2].s64); 
-         //fprintf(exec_output_file, "4>(%lld)",   ptx_regs[3].s64); 
-
          delete [] ptx_regs;
       }
 
-      //fprintf(exec_output_file, "\n");
-      //fflush(exec_output_file);
    }
 #endif
    thread->m_last_effective_address = addr;

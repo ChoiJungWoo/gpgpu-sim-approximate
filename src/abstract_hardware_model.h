@@ -35,6 +35,7 @@ class ptx_instruction;
 class gpgpu_sim;
 class kernel_info_t;
 
+
 enum _memory_space_t {
    undefined_space=0,
    reg_space,
@@ -1004,6 +1005,8 @@ class core_t {
         void execute_warp_inst_t(warp_inst_t &inst, unsigned warpId =(unsigned)-1);
 
         //steve appro*****************
+        void appro_computing_entry(warp_inst_t &inst, unsigned warpId, unsigned mode, bool isSat);
+        //----------------------------
         void appro_src_all_exe_f(warp_inst_t &inst, unsigned warpId = (unsigned)-1);
 
         void get_src_t(const warp_inst_t &inst,
@@ -1043,6 +1046,7 @@ class core_t {
         class ptx_thread_info ** m_thread;
         unsigned m_warp_size;
         unsigned m_warp_count;
+
 };
 
 

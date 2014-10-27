@@ -112,14 +112,6 @@ template<unsigned BSIZE> void memory_space_impl<BSIZE>::read_single_block( mem_a
 template<unsigned BSIZE> void memory_space_impl<BSIZE>::read( mem_addr_t addr, size_t length, void *data ) const
 {
    //steve_note
-#ifdef STEVE_GLOBAL
-//using namespace steve_glb_sp;
-   //assert(exec_output_file != NULL);
-   //FILE *fp = exec_output_file;
-   //fprintf(fp, "cuda-sim: memory_space_impl::read...\n");
-   //fflush(fp);
-#endif
-
    mem_addr_t index = addr >> m_log2_block_size;
    if ((addr+length) <= (index+1)*BSIZE ) {
       // fast route for intra-block access 
