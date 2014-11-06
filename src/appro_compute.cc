@@ -6,10 +6,10 @@
 //entry function
 void core_t::appro_computing_entry(warp_inst_t &inst, unsigned warpId, unsigned mode, bool isSat){
     //steve appro
-    steve_glb_sp::glb_appro_stat.one_warp_computing();
-
     if(isSat == false)
         return;
+
+    steve_glb_sp::glb_appro_stat.one_warp_computing();
 
     switch(mode){
         case NO_APPRO:
@@ -147,13 +147,14 @@ bool core_t::check_R(const int op, const double src1_data[], const double src2_d
     if(op == ADD || op == SUB || op == MUL || op == DIV || op == MAD){
         float src1_r = compute_R(src1_data, appro_src1);
         float src2_r = compute_R(src2_data, appro_src2);
-        if( src1_r< 0.9 && src1_r > -0.9 )
+
+        if( src1_r <= steve_glb_sp::appro_R && src1_r >= -steve_glb_sp::appro_R )
             return false;
-        if( src2_r< 0.9 && src2_r > -0.9 )
+        if( src2_r <= steve_glb_sp::appro_R && src2_r >= -steve_glb_sp::appro_R )
             return false;
         if(op == MAD){
             float src3_r = compute_R(src3_data, appro_src3);
-            if( src3_r< 0.9 && src3_r > -0.9 )
+            if( src3_r <= steve_glb_sp::appro_R && src3_r >= -steve_glb_sp::appro_R )
                 return false;
         }
 

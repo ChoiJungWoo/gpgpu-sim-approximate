@@ -28,6 +28,7 @@ namespace steve_glb_sp{
     extern int f32_type, f64_type, ff64_type;
     extern unsigned appro_mode;
     extern appro_stat_sim glb_appro_stat;
+    extern float appro_R;
 }
 
 extern gpu_appro_stat g_gpu_appro_stat;

@@ -49,32 +49,42 @@
 #include <string.h>
 namespace steve_glb_sp{
     int f32_type, f64_type, ff64_type;
-
     appro_stat_sim glb_appro_stat;
 
-    //unsigned appro_mode = NO_APPRO;
-    //unsigned appro_mode = APPRO_OPERANDS_COMP_ALL;
-    unsigned appro_mode = APPRO_OPERANDS_COMP_SELECT;
+    //*******************
+    //useful declerations
+    //*******************
 
+    //unsigned appro_mode = NO_APPRO;
+    unsigned appro_mode = APPRO_OPERANDS_COMP_ALL;
+    //unsigned appro_mode = APPRO_OPERANDS_COMP_SELECT;
+
+    float appro_R = 0.9;
+
+    //*******************
+    //helper fucntions
+    //*******************
     void printApproMode(){
-        printf("### appro mode: ");
+        printf("### appro mode:\n");
         switch(appro_mode){
             case NO_APPRO:
-                printf(" no approximate computing...\n");
+                printf("\tno approximate computing...\n");
+                return;
             case APPRO_OPERANDS_COMP_SELECT:
-                printf(" appro src select execution appro out...\n");
+                printf("\tappro src select execution appro out...\n");
                 break;
             case APPRO_OPERANDS_COMP_ALL:
-                printf(" appro src all execution...\n");
+                printf("\tappro src all execution...\n");
                 break;
             default:
                 break;
         }
+        printf("\tthreshold R = (%f)\n", appro_R);
     }
 
     void steve_do_sth(){
         //g_gpu_appro_stat.print_stat(appro_file);
-        steve_glb_sp::printApproMode();
+        printApproMode();
     }
 
 }
