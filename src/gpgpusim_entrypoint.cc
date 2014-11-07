@@ -56,8 +56,8 @@ namespace steve_glb_sp{
     //*******************
 
     //unsigned appro_mode = NO_APPRO;
-    unsigned appro_mode = APPRO_OPERANDS_COMP_ALL;
-    //unsigned appro_mode = APPRO_OPERANDS_COMP_SELECT;
+    //unsigned appro_mode = APPRO_OPERANDS_COMP_ALL;
+    unsigned appro_mode = APPRO_OPERANDS_COMP_SELECT;
 
     float appro_R = 0.9;
 
