@@ -9,9 +9,14 @@ class appro_stat_sim{
         void one_appro_computing();
         void one_pre_appro_computing();
 
-        void record_R(float R);
-        double get_sum_R();
-        double get_avg_R();
+        void record_R(float R, const int src, const bool valid);
+
+        double get_avg_src1_R();
+        double get_avg_src2_R();
+        double get_avg_src3_R();
+        double get_avg_src1_R_tot();
+        double get_avg_src2_R_tot();
+        double get_avg_src3_R_tot();
         //unsigned get_num_appro_computing();
 
         //void print_sum_R(FILE *out);
@@ -19,10 +24,22 @@ class appro_stat_sim{
         void print_num_appro_comp(FILE *out);
 
     private:
-        double sum_R;
-        double avg_R;
-        double sum_effctive_R;
-        double avg_effctive_R;
+        double sum_src1_R;
+        double sum_src2_R;
+        double sum_src3_R;
+
+        double num_src1_R;
+        double num_src2_R;
+        double num_src3_R;
+
+        double sum_src1_R_tot;
+        double sum_src2_R_tot;
+        double sum_src3_R_tot;
+
+        double num_src1_R_tot;
+        double num_src2_R_tot;
+        double num_src3_R_tot;
+
         unsigned long num_appro_computing;
         unsigned long num_pre_appro_computing;
         unsigned long num_warp_computing;

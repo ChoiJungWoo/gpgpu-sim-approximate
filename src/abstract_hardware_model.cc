@@ -748,8 +748,6 @@ void simt_stack::update( simt_mask_t &thread_done, addr_vector_t &next_pc, addre
 }
 
 
-#define APPRO_COMMIT 1
-
 void core_t::execute_warp_inst_t(warp_inst_t &inst, unsigned warpId)
 {
     bool is_saturate_warp = true;

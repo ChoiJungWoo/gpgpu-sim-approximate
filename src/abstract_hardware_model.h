@@ -1005,20 +1005,28 @@ class core_t {
         void execute_warp_inst_t(warp_inst_t &inst, unsigned warpId =(unsigned)-1);
 
         //steve appro*****************
-        void appro_computing_entry(warp_inst_t &inst, unsigned warpId, unsigned mode, bool isSat);
+        void appro_computing_entry(warp_inst_t &inst, unsigned warpId,
+                unsigned mode, bool isSat);
         //----------------------------
-        void appro_src_all_exe_f(warp_inst_t &inst, unsigned warpId = (unsigned)-1);
+        void appro_src_all_exe_f(warp_inst_t &inst,
+                unsigned warpId = (unsigned)-1);
 
-        void get_src_t(const warp_inst_t &inst,
+        bool get_src_t(const warp_inst_t &inst,
             unsigned warpId, const ptx_instruction *perWarp_pI[],
             int opcode_warp[], unsigned i_type[], operand_info dst_warp[],
             double src1_data[], double src2_data[], double src3_data[]);
 
-        bool get_dest_appro_src_exe_all_f(const int i_op_warp[], const double src1[], const double src2[], const double src3[], double dest[], const unsigned int warp_size);
+        bool get_dest_appro_src_exe_all_f(const int op,
+                const double src1[], const double src2[], const double src3[],
+                double dest[], const unsigned int warp_size);
 
-        bool check_R(const int op, const double src1_data[], const double src2_data[], const double src3_data[], const double appro_src1[],const double appro_src2[], const double appro_src3[]);
+        bool check_R(const int op,
+                const double src1_data[], const double src2_data[], const double src3_data[],
+                const double appro_src1[],const double appro_src2[], const double appro_src3[]);
 
-        void get_appro_src( const double src1_data[], const double src2_data[], const double src3_data[], double appro_src1[], double appro_src2[], double appro_src3[]);
+        void get_appro_src(
+                const double src1_data[], const double src2_data[], const double src3_data[],
+                double appro_src1[], double appro_src2[], double appro_src3[]);
 
         float compute_R(const double ob_values_f[],const double pred_values_f[]);
 
@@ -1026,9 +1034,13 @@ class core_t {
         void get_dest_sel_exe(const int op_warp[], const double src1_data[], const double src2_data[], const double src3_data[], double dest_data[]);
         //----------------------------
         void appro_src_sel_exe_appro_out_f(warp_inst_t &inst, unsigned warpId);
-        bool is_predictable_src(const int op, const double src1_data[], const double src2_data[], const double src3_data[], const double appro_src1[], const double appro_src2[], const double appro_src3[]);
+
+        bool is_predictable_src(const int op,
+                const double src1_data[], const double src2_data[], const double src3_data[],
+                const double appro_src1[], const double appro_src2[], const double appro_src3[]);
         void get_appro_dest_sel_exe(const double dest_data[], double appro_dest[]);
 
+        int checkOpcodes(const int op_warp[]);
         //^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
         bool  ptx_thread_done( unsigned hw_thread_id ) const ;
